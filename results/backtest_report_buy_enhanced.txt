@@ -1,0 +1,23 @@
+tradIA Backtest Report - BUY_enhanced
+==================================================
+
+total_trades             : 90
+trades_per_day           : 0.0625
+win_rate                 : 0.5555555555555556
+avg_return_pct           : 1.535328082319964
+median_return_pct        : 0.241365924406493
+total_return_pct         : 138.17952740879676
+avg_win_pct              : 3.209217428490348
+avg_loss_pct             : -0.5570336003930166
+max_drawdown_pct         : -5.643416442837164
+profit_factor            : 7.201579550645767
+sharpe_ratio             : 11.545801359047791
+calmar_ratio             : 24.48508431168134
+avg_holding_bars         : 1.1444444444444444
+exit_reasons             : {'trail_SL': 48, 'SL': 40, 'TP': 2}
+buy_trades               : 90
+buy_win_rate             : 0.5555555555555556
+buy_avg_return           : 1.535328082319964
+sell_trades              : 0
+sell_win_rate            : 0
+sell_avg_return          : 0

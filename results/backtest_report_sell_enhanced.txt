@@ -1,0 +1,23 @@
+tradIA Backtest Report - SELL_enhanced
+==================================================
+
+total_trades             : 94
+trades_per_day           : 0.06685633001422475
+win_rate                 : 0.6170212765957447
+avg_return_pct           : 1.2578528810926766
+median_return_pct        : 0.5334702163752787
+total_return_pct         : 118.2381708227116
+avg_win_pct              : 2.358043951139247
+avg_loss_pct             : -0.5146771762045754
+max_drawdown_pct         : -2.314420488619258
+profit_factor            : 7.381463538337905
+sharpe_ratio             : 14.636014393612172
+calmar_ratio             : 51.08759251144133
+avg_holding_bars         : 1.0851063829787233
+exit_reasons             : {'trail_SL': 55, 'SL': 36, 'TP': 3}
+buy_trades               : 0
+buy_win_rate             : 0
+buy_avg_return           : 0
+sell_trades              : 94
+sell_win_rate            : 0.6170212765957447
+sell_avg_return          : 1.2578528810926766

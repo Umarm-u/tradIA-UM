@@ -1,0 +1,39 @@
+tradIA BUY Pipeline — Enhanced Summary
+==================================================
+
+Runtime:             4.0 minutes
+Optuna:              SKIP
+Neg:Pos ratio:       2:1
+Features (initial):  97
+Features (selected): 77
+Features removed:    20
+BUY setups:          127
+Model AUC:           0.9960
+Threshold:           0.600
+Precision:           0.9844
+Recall:              0.9921
+F1:                  0.9882
+BUY signals:         128
+Meta-labeling:       ON
+
+Backtest Results:
+  total_trades             : 90
+  trades_per_day           : 0.0625
+  win_rate                 : 0.5555555555555556
+  avg_return_pct           : 1.535328082319964
+  median_return_pct        : 0.241365924406493
+  total_return_pct         : 138.17952740879676
+  avg_win_pct              : 3.209217428490348
+  avg_loss_pct             : -0.5570336003930166
+  max_drawdown_pct         : -5.643416442837164
+  profit_factor            : 7.201579550645767
+  sharpe_ratio             : 11.545801359047791
+  calmar_ratio             : 24.48508431168134
+  avg_holding_bars         : 1.1444444444444444
+  exit_reason_counts       : {'trail_SL': 48, 'SL': 40, 'TP': 2}
+  buy_trades               : 90
+  buy_win_rate             : 0.5555555555555556
+  buy_avg_return           : 1.535328082319964
+  sell_trades              : 0
+  sell_win_rate            : 0
+  sell_avg_return          : 0
