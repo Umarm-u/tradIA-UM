@@ -45,7 +45,7 @@ META_THRESHOLD = float(os.getenv("META_THRESHOLD", "0.30"))
 # ─────────────────────────────────────────────
 RISK_PER_TRADE = float(os.getenv("RISK_PER_TRADE", "0.02"))   # 2% of account
 MAX_DAILY_LOSS = float(os.getenv("MAX_DAILY_LOSS", "0.05"))    # 5% max daily loss
-MIN_TRADE_USDT = 5.0     # Binance minimum notional for BTCUSDT futures
+MIN_TRADE_USDT = 100.0    # Binance Futures minimum notional requirement
 MIN_QUANTITY = 0.001      # minimum BTC quantity on Binance Futures
 
 # ─────────────────────────────────────────────

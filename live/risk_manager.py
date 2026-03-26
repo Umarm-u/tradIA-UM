@@ -61,14 +61,16 @@ class RiskManager:
         # If SL distance is $500 and risk is $0.20, we can open 0.20/500 = 0.0004 BTC
         quantity = risk_amount / sl_distance
 
-        # Check minimum notional requirement
+        # Check minimum notional requirement (Binance Futures = $100)
         notional = quantity * current_price
         if notional < MIN_TRADE_USDT:
-            # For micro-accounts, use minimum possible position
+            # Bump to minimum notional
             quantity = MIN_TRADE_USDT / current_price
-            log.info(
-                f"Position size bumped to minimum notional: "
-                f"qty={quantity:.6f}, notional=${notional:.2f} → ${MIN_TRADE_USDT}"
+            actual_risk = quantity * sl_distance
+            log.warning(
+                f"Position size bumped to meet min notional (${MIN_TRADE_USDT}): "
+                f"qty={quantity:.6f}, notional=${quantity * current_price:.2f}, "
+                f"actual_risk=${actual_risk:.2f} (vs configured ${risk_amount:.2f})"
             )
 
         # Ensure minimum quantity
@@ -76,11 +78,22 @@ class RiskManager:
             quantity = MIN_QUANTITY
             log.info(f"Position size bumped to minimum quantity: {MIN_QUANTITY}")
 
+        # Final notional check
+        final_notional = quantity * current_price
+
         # Check margin requirement
-        required_margin = (quantity * current_price) / leverage
+        required_margin = final_notional / leverage
         if required_margin > balance * 0.90:  # leave 10% buffer
+            max_notional = balance * 0.90 * leverage
+            if max_notional < MIN_TRADE_USDT:
+                log.error(
+                    f"INSUFFICIENT BALANCE: need ${MIN_TRADE_USDT / leverage:.2f} margin "
+                    f"for min notional ${MIN_TRADE_USDT}, have ${balance:.2f}. "
+                    f"Deposit more funds or increase leverage."
+                )
+                return 0.0
             # Scale down to fit available margin
-            max_qty = (balance * 0.90 * leverage) / current_price
+            max_qty = max_notional / current_price
             quantity = min(quantity, max_qty)
             log.warning(
                 f"Position size limited by margin: "
