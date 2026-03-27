@@ -15,7 +15,7 @@ from live.logger import log
 
 class BinanceClient:
 
-    def _init_(self):
+    def __init__(self):
         self.client: Optional[Client] = None
         self.symbol = SYMBOL
 
