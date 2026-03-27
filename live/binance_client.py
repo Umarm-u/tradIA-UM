@@ -269,9 +269,6 @@ class BinanceClient:
         """
         Place a stop-market order (SL).
         side should be the CLOSING side (SELL for longs, BUY for shorts).
-
-        Uses the direct REST endpoint to avoid python-binance routing
-        STOP_MARKET orders to the algoOrder endpoint.
         """
         quantity = self._round_qty(quantity)
         stop_price = self._round_price(stop_price)
@@ -282,30 +279,20 @@ class BinanceClient:
             )
             return {"orderId": "DRY_RUN_SL", "dry_run": True}
 
-        params = {
-            "symbol": self.symbol,
-            "side": side,
-            "type": "STOP_MARKET",
-            "stopPrice": stop_price,
-            "quantity": quantity,
-            "reduceOnly": "true",
-            "workingType": "MARK_PRICE",
-        }
-        order = self._retry(
-            self.client._request_futures_api,
-            "post", "order", True, data=params,
+        order = self._place_conditional_order(
+            strategy_type="STOP_MARKET",
+            side=side,
+            quantity=quantity,
+            trigger_price=stop_price,
         )
 
-        log.info(f"SL order placed: {side} {quantity} @ {stop_price} (orderId: {order['orderId']})")
+        log.info(f"SL order placed: {side} {quantity} @ {stop_price} (orderId: {order.get('orderId', order.get('strategyId', 'N/A'))})")
         return order
 
     def place_take_profit(self, side: str, quantity: float, tp_price: float) -> Optional[Dict]:
         """
         Place a take-profit-market order.
         side should be the CLOSING side.
-
-        Uses the direct REST endpoint to avoid python-binance routing
-        TAKE_PROFIT_MARKET orders to the algoOrder endpoint.
         """
         quantity = self._round_qty(quantity)
         tp_price = self._round_price(tp_price)
@@ -316,22 +303,68 @@ class BinanceClient:
             )
             return {"orderId": "DRY_RUN_TP", "dry_run": True}
 
-        params = {
-            "symbol": self.symbol,
-            "side": side,
-            "type": "TAKE_PROFIT_MARKET",
-            "stopPrice": tp_price,
-            "quantity": quantity,
-            "reduceOnly": "true",
-            "workingType": "MARK_PRICE",
-        }
-        order = self._retry(
-            self.client._request_futures_api,
-            "post", "order", True, data=params,
+        order = self._place_conditional_order(
+            strategy_type="TAKE_PROFIT_MARKET",
+            side=side,
+            quantity=quantity,
+            trigger_price=tp_price,
         )
 
-        log.info(f"TP order placed: {side} {quantity} @ {tp_price} (orderId: {order['orderId']})")
+        log.info(f"TP order placed: {side} {quantity} @ {tp_price} (orderId: {order.get('orderId', order.get('strategyId', 'N/A'))})")
         return order
+
+    def _place_conditional_order(
+        self,
+        strategy_type: str,
+        side: str,
+        quantity: float,
+        trigger_price: float,
+    ) -> Dict:
+        """
+        Place a conditional order via Binance's conditional order API.
+
+        Binance moved STOP_MARKET / TAKE_PROFIT_MARKET to
+        POST /fapi/v1/conditional/order with different param names
+        (strategyType + triggerPrice instead of type + stopPrice).
+
+        Params are rebuilt each retry attempt to avoid stale
+        timestamp/signature from dict mutation by the SDK.
+        """
+        last_error = None
+        for attempt in range(API_RETRY_ATTEMPTS):
+            try:
+                params = {
+                    "symbol": self.symbol,
+                    "side": side,
+                    "strategyType": strategy_type,
+                    "triggerPrice": str(trigger_price),
+                    "quantity": str(quantity),
+                    "reduceOnly": "true",
+                    "workingType": "MARK_PRICE",
+                    "priceProtect": "true",
+                }
+                return self.client._request_futures_api(
+                    "post", "conditional/order", True, data=params,
+                )
+            except (BinanceAPIException, BinanceRequestException) as e:
+                last_error = e
+                wait = API_RETRY_DELAY * (2 ** attempt)
+                log.warning(
+                    f"Conditional order error (attempt {attempt + 1}/{API_RETRY_ATTEMPTS}): "
+                    f"{e} — retrying in {wait}s"
+                )
+                time.sleep(wait)
+            except Exception as e:
+                last_error = e
+                wait = API_RETRY_DELAY * (2 ** attempt)
+                log.warning(
+                    f"Unexpected conditional order error (attempt {attempt + 1}/{API_RETRY_ATTEMPTS}): "
+                    f"{e} — retrying in {wait}s"
+                )
+                time.sleep(wait)
+
+        log.error(f"Conditional order failed after {API_RETRY_ATTEMPTS} attempts: {last_error}")
+        raise last_error
 
     def cancel_open_orders(self) -> int:
         """Cancel all open orders for our symbol. Returns count cancelled."""
