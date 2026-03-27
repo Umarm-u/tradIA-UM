@@ -196,25 +196,30 @@ class BinanceClient:
     def get_open_position(self) -> Optional[Dict]:
         """
         Get the current open position for our symbol.
-        Returns None if no position, else dict with:
-          - side: 'LONG' or 'SHORT'
-          - quantity: absolute position size
-          - entry_price: average entry price
-          - unrealized_pnl: current unrealized PnL
-          - leverage: position leverage
+        Returns None if no position.
         """
-        positions = self._retry(self.client.futures_position_information, symbol=self.symbol)
+        positions = self._retry(
+            self.client.futures_position_information,
+            symbol=self.symbol
+        )
+
         for pos in positions:
-            qty = float(pos["positionAmt"])
-            if qty != 0:
-                return {
-                    "side": "LONG" if qty > 0 else "SHORT",
-                    "quantity": abs(qty),
-                    "entry_price": float(pos["entryPrice"]),
-                    "unrealized_pnl": float(pos["unRealizedProfit"]),
-                    "leverage": int(pos["leverage"]),
-                    "mark_price": float(pos.get("markPrice", 0)),
-                }
+            try:
+                qty = float(pos.get("positionAmt", 0))
+
+                if qty != 0:
+                    return {
+                        "side": "LONG" if qty > 0 else "SHORT",
+                        "quantity": abs(qty),
+                        "entry_price": float(pos.get("entryPrice", 0)),
+                        "unrealized_pnl": float(pos.get("unRealizedProfit", 0)),
+                        "leverage": int(pos.get("leverage", 0)),  # SAFE
+                        "mark_price": float(pos.get("markPrice", 0)),
+                    }
+
+            except Exception as e:
+                log.warning(f"Error parsing position: {e} | raw: {pos}")
+
         return None
 
     # ──────────────────────────────────────────
