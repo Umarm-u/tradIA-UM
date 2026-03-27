@@ -133,11 +133,13 @@ class OrderManager:
             log.error("Entry order failed!")
             return False
 
-        # Get actual fill price
+        # Get actual fill price and quantity
         if entry_order.get("dry_run"):
             actual_entry = current_price
+            filled_qty = quantity
         else:
             actual_entry = float(entry_order.get("avgPrice", current_price))
+            filled_qty = float(entry_order.get("executedQty", quantity))
             # Recalculate SL/TP based on actual fill
             if signal == Signal.LONG:
                 sl_price = actual_entry - sl_distance
@@ -145,6 +147,9 @@ class OrderManager:
             else:
                 sl_price = actual_entry + sl_distance
                 tp_price = actual_entry - tp_distance
+
+        # Use filled quantity for SL/TP so protection covers the full position
+        quantity = filled_qty
 
         # ── Place SL order ──
         sl_order = self.client.place_stop_loss(close_side, quantity, sl_price)

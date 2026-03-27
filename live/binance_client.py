@@ -31,6 +31,7 @@ class BinanceClient:
         self.symbol_info: Dict = {}
         self.price_precision: int = 2
         self.qty_precision: int = 3
+        self.tick_size: float = 0.10
         self.min_qty: float = 0.001
         self.min_notional: float = 5.0
 
@@ -81,6 +82,8 @@ class BinanceClient:
                 self.qty_precision = int(s["quantityPrecision"])
 
                 for f in s["filters"]:
+                    if f["filterType"] == "PRICE_FILTER":
+                        self.tick_size = float(f["tickSize"])
                     if f["filterType"] == "LOT_SIZE":
                         self.min_qty = float(f["minQty"])
                     if f["filterType"] == "MIN_NOTIONAL":
@@ -88,8 +91,8 @@ class BinanceClient:
                 break
 
         log.debug(
-            f"Symbol info loaded: min_qty={self.min_qty}, "
-            f"min_notional={self.min_notional}"
+            f"Symbol info loaded: tick_size={self.tick_size}, "
+            f"min_qty={self.min_qty}, min_notional={self.min_notional}"
         )
 
     def _set_leverage(self):
@@ -339,8 +342,9 @@ class BinanceClient:
     # ──────────────────────────────────────────
 
     def _round_price(self, price: float) -> float:
-        """Round price to symbol's price precision."""
-        return round(price, self.price_precision)
+        """Round price to the symbol's tick size grid."""
+        tick = Decimal(str(self.tick_size))
+        return float(Decimal(str(price)).quantize(tick, rounding=ROUND_DOWN))
 
     def _round_qty(self, qty: float, price: float = None) -> float:
         """Round quantity to symbol's quantity precision.
