@@ -226,10 +226,10 @@ class BinanceClient:
             side: 'BUY' or 'SELL'
             quantity: order quantity in base asset (e.g. BTC)
         """
-        quantity = self._round_qty(quantity)
+        price = self.get_current_price()
+        quantity = self._round_qty(quantity, price=price)
 
         if DRY_RUN:
-            price = self.get_current_price()
             log.info(
                 f"[DRY RUN] Market {side} {quantity} {self.symbol} @ ~{price:.2f}"
             )
@@ -342,10 +342,26 @@ class BinanceClient:
         """Round price to symbol's price precision."""
         return round(price, self.price_precision)
 
-    def _round_qty(self, qty: float) -> float:
-        """Round quantity DOWN to symbol's quantity precision."""
+    def _round_qty(self, qty: float, price: float = None) -> float:
+        """Round quantity to symbol's quantity precision.
+
+        Default behaviour is floor-rounding (safe for SL/TP reduce-only
+        orders).  When *price* is supplied the method checks whether the
+        floor-rounded quantity would violate Binance's minimum notional
+        ($100) and, if so, rounds UP instead.
+        """
         factor = 10 ** self.qty_precision
-        return math.floor(qty * factor) / factor
+        rounded = math.floor(qty * factor) / factor
+
+        if price is not None:
+            if rounded * price < self.min_notional:
+                rounded = math.ceil(qty * factor) / factor
+                log.debug(
+                    f"_round_qty: ceil-rounded to {rounded} "
+                    f"(notional=${rounded * price:.2f}) to meet min notional"
+                )
+
+        return rounded
 
     def _retry(self, func, *args, **kwargs):
         """Execute API call with retry and exponential backoff."""
