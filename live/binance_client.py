@@ -321,11 +321,10 @@ class BinanceClient:
         trigger_price: float,
     ) -> Dict:
         """
-        Place a conditional order via Binance's conditional order API.
+        Place a conditional order via Binance's Algo Order API.
 
-        Binance moved STOP_MARKET / TAKE_PROFIT_MARKET to
-        POST /fapi/v1/conditional/order with different param names
-        (strategyType + triggerPrice instead of type + stopPrice).
+        Since Dec 2025, Binance moved STOP_MARKET / TAKE_PROFIT_MARKET
+        to POST /fapi/v1/algoOrder with algoType=CONDITIONAL.
 
         Params are rebuilt each retry attempt to avoid stale
         timestamp/signature from dict mutation by the SDK.
@@ -336,15 +335,16 @@ class BinanceClient:
                 params = {
                     "symbol": self.symbol,
                     "side": side,
-                    "strategyType": strategy_type,
+                    "algoType": "CONDITIONAL",
+                    "type": strategy_type,
                     "triggerPrice": str(trigger_price),
                     "quantity": str(quantity),
                     "reduceOnly": "true",
                     "workingType": "MARK_PRICE",
-                    "priceProtect": "true",
+                    "priceProtect": "TRUE",
                 }
                 return self.client._request_futures_api(
-                    "post", "conditional/order", True, data=params,
+                    "post", "algoOrder", True, data=params,
                 )
             except (BinanceAPIException, BinanceRequestException) as e:
                 last_error = e

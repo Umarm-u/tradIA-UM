@@ -138,7 +138,9 @@ class OrderManager:
             actual_entry = current_price
             filled_qty = quantity
         else:
-            actual_entry = float(entry_order.get("avgPrice", current_price))
+            # avgPrice may be "0" in the immediate response; fall back to current price
+            avg = float(entry_order.get("avgPrice", 0))
+            actual_entry = avg if avg > 0 else current_price
             filled_qty = float(entry_order.get("executedQty", quantity))
             # Recalculate SL/TP based on actual fill
             if signal == Signal.LONG:
