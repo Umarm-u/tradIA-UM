@@ -326,25 +326,24 @@ class BinanceClient:
         Since Dec 2025, Binance moved STOP_MARKET / TAKE_PROFIT_MARKET
         to POST /fapi/v1/algoOrder with algoType=CONDITIONAL.
 
-        Params are rebuilt each retry attempt to avoid stale
-        timestamp/signature from dict mutation by the SDK.
+        Params are passed as **kwargs (matching how futures_create_order
+        works internally) and rebuilt each attempt to avoid stale
+        timestamp/signature.
         """
         last_error = None
         for attempt in range(API_RETRY_ATTEMPTS):
             try:
-                params = {
-                    "symbol": self.symbol,
-                    "side": side,
-                    "algoType": "CONDITIONAL",
-                    "type": strategy_type,
-                    "triggerPrice": str(trigger_price),
-                    "quantity": str(quantity),
-                    "reduceOnly": "true",
-                    "workingType": "MARK_PRICE",
-                    "priceProtect": "TRUE",
-                }
                 return self.client._request_futures_api(
-                    "post", "algoOrder", True, data=params,
+                    "post", "algoOrder", True,
+                    symbol=self.symbol,
+                    side=side,
+                    algoType="CONDITIONAL",
+                    type=strategy_type,
+                    triggerPrice=trigger_price,
+                    quantity=quantity,
+                    reduceOnly="true",
+                    workingType="MARK_PRICE",
+                    priceProtect="TRUE",
                 )
             except (BinanceAPIException, BinanceRequestException) as e:
                 last_error = e
