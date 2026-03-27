@@ -151,13 +151,9 @@ class OrderManager:
         # Use filled quantity for SL/TP so protection covers the full position
         quantity = filled_qty
 
-        # ── Place SL order ──
-        sl_order = self.client.place_stop_loss(close_side, quantity, sl_price)
-
-        # ── Place TP order ──
-        tp_order = self.client.place_take_profit(close_side, quantity, tp_price)
-
-        # ── Update state ──
+        # ── Track position IMMEDIATELY after market fill ──
+        # This must happen before SL/TP placement so that if SL/TP fails
+        # the position is still tracked and the bot won't re-enter.
         self.position = {
             "direction": direction,
             "side": order_side,
@@ -175,10 +171,28 @@ class OrderManager:
         self.best_price = actual_entry
         self.trail_active = False
 
+        # ── Place SL and TP orders ──
+        sl_order = None
+        tp_order = None
+        try:
+            sl_order = self.client.place_stop_loss(close_side, quantity, sl_price)
+        except Exception as e:
+            log.error(f"SL order FAILED (position is still tracked): {e}")
+
+        try:
+            tp_order = self.client.place_take_profit(close_side, quantity, tp_price)
+        except Exception as e:
+            log.error(f"TP order FAILED (position is still tracked): {e}")
+
         self.sl_order_id = sl_order.get("orderId") if sl_order else None
         self.tp_order_id = tp_order.get("orderId") if tp_order else None
 
         log.info(f"{direction} trade opened @ ${actual_entry:.2f}")
+        if not sl_order or not tp_order:
+            log.warning(
+                "SL/TP placement incomplete — position tracked, "
+                "will retry SL via trailing stop on next cycle"
+            )
         return True
 
     def update_trailing_stop(self, latest_high: float, latest_low: float) -> bool:

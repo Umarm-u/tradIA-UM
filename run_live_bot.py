@@ -150,9 +150,33 @@ def main(dry_run: bool = None, run_once: bool = False):
         if existing_pos and not order_mgr.has_position:
             log.warning(
                 f"Found existing Binance position not tracked by bot: "
-                f"{existing_pos['side']} {existing_pos['quantity']} @ ${existing_pos['entry_price']:.2f}"
+                f"{existing_pos['side']} {existing_pos['quantity']} "
+                f"@ ${existing_pos['entry_price']:.2f}"
             )
-            log.warning("Please close this position manually or restart with saved state.")
+            log.info("Adopting untracked position into bot state...")
+            direction = existing_pos["side"]   # 'LONG' or 'SHORT'
+            adopt_side = "BUY" if direction == "LONG" else "SELL"
+            adopt_close = "SELL" if direction == "LONG" else "BUY"
+            order_mgr.position = {
+                "direction": direction,
+                "side": adopt_side,
+                "close_side": adopt_close,
+                "quantity": existing_pos["quantity"],
+                "entry_price": existing_pos["entry_price"],
+                "entry_time": time.time(),
+                "order_id": "ADOPTED",
+            }
+            order_mgr.entry_price = existing_pos["entry_price"]
+            order_mgr.best_price = existing_pos["entry_price"]
+            log.info(
+                f"Adopted {direction} position: "
+                f"qty={existing_pos['quantity']}, "
+                f"entry=${existing_pos['entry_price']:.2f}"
+            )
+            log.warning(
+                "Adopted position has no SL/TP — trailing stop logic "
+                "will attempt to place protection on the next cycle."
+            )
 
     except Exception as e:
         log.error(f"Startup failed: {e}")
@@ -283,6 +307,19 @@ def main(dry_run: bool = None, run_once: bool = False):
 
                 # Execute trade if we have a signal
                 if sig in (Signal.LONG, Signal.SHORT):
+                    # Hard guard: verify no position exists on Binance
+                    if not actual_dry_run:
+                        binance_pos = client.get_open_position()
+                        if binance_pos:
+                            log.warning(
+                                f"BLOCKED: Binance already has a "
+                                f"{binance_pos['side']} position — "
+                                f"skipping new trade to avoid stacking"
+                            )
+                            if run_once:
+                                break
+                            continue
+
                     log.info(f"  >>> EXECUTING {sig.value} TRADE <<<")
 
                     success = order_mgr.open_trade(
