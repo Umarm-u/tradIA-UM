@@ -269,6 +269,9 @@ class BinanceClient:
         """
         Place a stop-market order (SL).
         side should be the CLOSING side (SELL for longs, BUY for shorts).
+
+        Uses the direct REST endpoint to avoid python-binance routing
+        STOP_MARKET orders to the algoOrder endpoint.
         """
         quantity = self._round_qty(quantity)
         stop_price = self._round_price(stop_price)
@@ -279,15 +282,18 @@ class BinanceClient:
             )
             return {"orderId": "DRY_RUN_SL", "dry_run": True}
 
+        params = {
+            "symbol": self.symbol,
+            "side": side,
+            "type": "STOP_MARKET",
+            "stopPrice": stop_price,
+            "quantity": quantity,
+            "reduceOnly": "true",
+            "workingType": "MARK_PRICE",
+        }
         order = self._retry(
-            self.client.futures_create_order,
-            symbol=self.symbol,
-            side=side,
-            type=FUTURE_ORDER_TYPE_STOP_MARKET,
-            stopPrice=stop_price,
-            quantity=quantity,
-            reduceOnly=True,
-            workingType="MARK_PRICE",
+            self.client._request_futures_api,
+            "post", "order", True, data=params,
         )
 
         log.info(f"SL order placed: {side} {quantity} @ {stop_price} (orderId: {order['orderId']})")
@@ -297,6 +303,9 @@ class BinanceClient:
         """
         Place a take-profit-market order.
         side should be the CLOSING side.
+
+        Uses the direct REST endpoint to avoid python-binance routing
+        TAKE_PROFIT_MARKET orders to the algoOrder endpoint.
         """
         quantity = self._round_qty(quantity)
         tp_price = self._round_price(tp_price)
@@ -307,15 +316,18 @@ class BinanceClient:
             )
             return {"orderId": "DRY_RUN_TP", "dry_run": True}
 
+        params = {
+            "symbol": self.symbol,
+            "side": side,
+            "type": "TAKE_PROFIT_MARKET",
+            "stopPrice": tp_price,
+            "quantity": quantity,
+            "reduceOnly": "true",
+            "workingType": "MARK_PRICE",
+        }
         order = self._retry(
-            self.client.futures_create_order,
-            symbol=self.symbol,
-            side=side,
-            type=FUTURE_ORDER_TYPE_TAKE_PROFIT_MARKET,
-            stopPrice=tp_price,
-            quantity=quantity,
-            reduceOnly=True,
-            workingType="MARK_PRICE",
+            self.client._request_futures_api,
+            "post", "order", True, data=params,
         )
 
         log.info(f"TP order placed: {side} {quantity} @ {tp_price} (orderId: {order['orderId']})")
