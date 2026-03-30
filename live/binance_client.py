@@ -75,8 +75,7 @@ class BinanceClient:
 
     def _set_margin_type(self):
         try:
-            self._retry(
-                self.client.futures_change_margin_type,
+            self.client.futures_change_margin_type(
                 symbol=self.symbol,
                 marginType="ISOLATED",
             )
@@ -150,7 +149,10 @@ class BinanceClient:
             "price": avg_price,
         }
 
-    def place_stop_loss(self, side: str, stop_price: float):
+    def place_stop_loss(self, side: str, quantity: float = None, stop_price: float = None):
+        # Support both (side, stop_price) and (side, quantity, stop_price) signatures
+        if stop_price is None:
+            stop_price = quantity
         stop_price = self._round_price(stop_price)
 
         return self._retry(
@@ -163,7 +165,10 @@ class BinanceClient:
             workingType="MARK_PRICE",
         )
 
-    def place_take_profit(self, side: str, tp_price: float):
+    def place_take_profit(self, side: str, quantity: float = None, tp_price: float = None):
+        # Support both (side, tp_price) and (side, quantity, tp_price) signatures
+        if tp_price is None:
+            tp_price = quantity
         tp_price = self._round_price(tp_price)
 
         return self._retry(
@@ -175,6 +180,60 @@ class BinanceClient:
             closePosition=True,
             workingType="MARK_PRICE",
         )
+
+    # ───────────── DATA ─────────────
+
+    def fetch_klines(self, limit: int = 500) -> pd.DataFrame:
+        """Fetch historical klines/candlestick data."""
+        raw = self._retry(
+            self.client.futures_klines,
+            symbol=self.symbol,
+            interval=TIMEFRAME,
+            limit=limit,
+        )
+
+        df = pd.DataFrame(raw, columns=[
+            "open_time", "open", "high", "low", "close", "volume",
+            "close_time", "quote_volume", "trades",
+            "taker_buy_base", "taker_buy_quote", "ignore",
+        ])
+
+        df["open_time"] = pd.to_datetime(df["open_time"], unit="ms")
+        df = df.set_index("open_time")
+
+        for col in ["open", "high", "low", "close", "volume"]:
+            df[col] = df[col].astype(float)
+
+        df = df[["open", "high", "low", "close", "volume"]]
+
+        log.info(f"Fetched {len(df)} klines")
+        return df
+
+    # ───────────── ORDER MANAGEMENT ─────────────
+
+    def update_stop_loss(self, side: str, quantity: float, stop_price: float):
+        """Cancel existing SL orders and place a new one."""
+        # Cancel all open orders (SL/TP) and re-place
+        try:
+            self._retry(
+                self.client.futures_cancel_all_open_orders,
+                symbol=self.symbol,
+            )
+        except BinanceAPIException as e:
+            log.warning(f"Could not cancel orders before SL update: {e}")
+
+        return self.place_stop_loss(side, stop_price=stop_price)
+
+    def cancel_open_orders(self):
+        """Cancel all open orders for the symbol."""
+        try:
+            self._retry(
+                self.client.futures_cancel_all_open_orders,
+                symbol=self.symbol,
+            )
+            log.info(f"All open orders cancelled for {self.symbol}")
+        except BinanceAPIException as e:
+            log.warning(f"Could not cancel open orders: {e}")
 
     # ───────────── HELPERS ─────────────
 
