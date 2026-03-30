@@ -37,6 +37,56 @@ class BinanceClient:
         self._set_leverage()
         self._set_margin_type()
 
+    def _load_symbol_info(self):
+        info = self._retry(self.client.futures_exchange_info)
+
+        for s in info["symbols"]:
+            if s["symbol"] == self.symbol:
+                self.price_precision = s["pricePrecision"]
+                self.qty_precision = s["quantityPrecision"]
+
+                for f in s["filters"]:
+                    if f["filterType"] == "PRICE_FILTER":
+                        self.tick_size = float(f["tickSize"])
+                    elif f["filterType"] == "LOT_SIZE":
+                        self.min_qty = float(f["minQty"])
+                    elif f["filterType"] == "MIN_NOTIONAL":
+                        self.min_notional = float(f.get("notional", 100.0))
+
+                log.info(
+                    f"Symbol info loaded: pricePrecision={self.price_precision}, "
+                    f"qtyPrecision={self.qty_precision}, tickSize={self.tick_size}, "
+                    f"minQty={self.min_qty}, minNotional={self.min_notional}"
+                )
+                return
+
+        raise ValueError(f"Symbol {self.symbol} not found on Binance Futures")
+
+    def _set_leverage(self):
+        try:
+            self._retry(
+                self.client.futures_change_leverage,
+                symbol=self.symbol,
+                leverage=LEVERAGE,
+            )
+            log.info(f"Leverage set to {LEVERAGE}x")
+        except BinanceAPIException as e:
+            log.warning(f"Could not set leverage: {e}")
+
+    def _set_margin_type(self):
+        try:
+            self._retry(
+                self.client.futures_change_margin_type,
+                symbol=self.symbol,
+                marginType="ISOLATED",
+            )
+            log.info("Margin type set to ISOLATED")
+        except BinanceAPIException as e:
+            if "No need to change margin type" in str(e):
+                log.info("Margin type already ISOLATED")
+            else:
+                log.warning(f"Could not set margin type: {e}")
+
     # ───────────── ACCOUNT ─────────────
 
     def get_balance(self) -> float:
