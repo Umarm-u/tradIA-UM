@@ -255,7 +255,9 @@ def main(dry_run: bool = None, run_once: bool = False):
                         last_candle_time=str(pipeline.last_candle_time),
                     )
                 else:
-                    # Position still open — update trailing stop
+                    # Position still open — ensure SL/TP are placed, then update trailing stop
+                    order_mgr.ensure_sl_tp()
+
                     latest_high = float(features.get("high", current_price))
                     latest_low = float(features.get("low", current_price))
                     order_mgr.update_trailing_stop(latest_high, latest_low)

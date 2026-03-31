@@ -33,6 +33,8 @@ class OrderManager:
         self.position: Optional[Dict] = None       # active position details
         self.sl_order_id: Optional[str] = None
         self.tp_order_id: Optional[str] = None
+        self.sl_placed: bool = False       # True once SL order confirmed on exchange
+        self.tp_placed: bool = False       # True once TP order confirmed on exchange
 
         # Trailing stop state
         self.trail_active: bool = False
@@ -178,24 +180,87 @@ class OrderManager:
         tp_order = None
         try:
             sl_order = self.client.place_stop_loss(close_side, quantity, sl_price)
+            self.sl_placed = True
         except Exception as e:
             log.error(f"SL order FAILED (position is still tracked): {e}")
+            self.sl_placed = False
 
         try:
             tp_order = self.client.place_take_profit(close_side, quantity, tp_price)
+            self.tp_placed = True
         except Exception as e:
             log.error(f"TP order FAILED (position is still tracked): {e}")
+            self.tp_placed = False
 
         self.sl_order_id = sl_order.get("orderId") if sl_order else None
         self.tp_order_id = tp_order.get("orderId") if tp_order else None
 
         log.info(f"{direction} trade opened @ ${actual_entry:.2f}")
-        if not sl_order or not tp_order:
+        if not self.sl_placed or not self.tp_placed:
             log.warning(
                 "SL/TP placement incomplete — position tracked, "
-                "will retry SL via trailing stop on next cycle"
+                "will retry on next cycle via ensure_sl_tp()"
             )
         return True
+
+    def ensure_sl_tp(self) -> None:
+        """
+        Retry placing SL/TP orders that failed during open_trade().
+        Fetches the current price and widens the SL if it would
+        immediately trigger.
+        """
+        if not self.has_position:
+            return
+        if self.sl_placed and self.tp_placed:
+            return  # nothing to do
+
+        if DRY_RUN:
+            return
+
+        direction = self.position["direction"]
+        close_side = self.position["close_side"]
+        qty = self.position["quantity"]
+
+        current_price = self.client.get_current_price()
+
+        # ── Retry SL ──
+        if not self.sl_placed:
+            sl = self.current_sl
+            # Widen SL if it would immediately trigger
+            if direction == "LONG" and sl >= current_price:
+                sl = current_price - 0.5 * self.sl_distance
+                log.warning(
+                    f"SL ${self.current_sl:.2f} >= price ${current_price:.2f}, "
+                    f"widened to ${sl:.2f}"
+                )
+                self.current_sl = sl
+                self.original_sl = sl
+            elif direction == "SHORT" and sl <= current_price:
+                sl = current_price + 0.5 * self.sl_distance
+                log.warning(
+                    f"SL ${self.current_sl:.2f} <= price ${current_price:.2f}, "
+                    f"widened to ${sl:.2f}"
+                )
+                self.current_sl = sl
+                self.original_sl = sl
+
+            try:
+                sl_order = self.client.place_stop_loss(close_side, qty, self.current_sl)
+                self.sl_order_id = sl_order.get("orderId")
+                self.sl_placed = True
+                log.info(f"SL order RETRY succeeded @ ${self.current_sl:.2f}")
+            except Exception as e:
+                log.error(f"SL retry FAILED again: {e}")
+
+        # ── Retry TP ──
+        if not self.tp_placed:
+            try:
+                tp_order = self.client.place_take_profit(close_side, qty, self.tp_price)
+                self.tp_order_id = tp_order.get("orderId")
+                self.tp_placed = True
+                log.info(f"TP order RETRY succeeded @ ${self.tp_price:.2f}")
+            except Exception as e:
+                log.error(f"TP retry FAILED again: {e}")
 
     def update_trailing_stop(self, latest_high: float, latest_low: float) -> bool:
         """
@@ -387,6 +452,8 @@ class OrderManager:
         self.position = None
         self.sl_order_id = None
         self.tp_order_id = None
+        self.sl_placed = False
+        self.tp_placed = False
         self.trail_active = False
         self.best_price = 0.0
         self.current_sl = 0.0

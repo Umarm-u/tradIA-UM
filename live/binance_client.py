@@ -162,7 +162,7 @@ class BinanceClient:
             type="STOP_MARKET",
             stopPrice=stop_price,
             closePosition=True,
-            workingType="MARK_PRICE",
+            workingType="CONTRACT_PRICE",
         )
 
     def place_take_profit(self, side: str, quantity: float = None, tp_price: float = None):
@@ -178,7 +178,7 @@ class BinanceClient:
             type="TAKE_PROFIT_MARKET",
             stopPrice=tp_price,
             closePosition=True,
-            workingType="MARK_PRICE",
+            workingType="CONTRACT_PRICE",
         )
 
     # ───────────── DATA ─────────────
