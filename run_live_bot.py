@@ -137,6 +137,8 @@ def main(dry_run: bool = None, run_once: bool = False):
                     order_mgr.tp_price = ts.get("tp_price", 0)
                     order_mgr.entry_price = ts.get("entry_price", 0)
                     order_mgr.sl_distance = ts.get("sl_distance", 0)
+                    order_mgr.sl_placed = ts.get("sl_placed", False)
+                    order_mgr.tp_placed = ts.get("tp_placed", False)
                 log.info(
                     f"  Restored position: {order_mgr.position['direction']} "
                     f"@ ${order_mgr.entry_price:.2f}"
@@ -283,6 +285,8 @@ def main(dry_run: bool = None, run_once: bool = False):
                             "tp_price": order_mgr.tp_price,
                             "entry_price": order_mgr.entry_price,
                             "sl_distance": order_mgr.sl_distance,
+                            "sl_placed": order_mgr.sl_placed,
+                            "tp_placed": order_mgr.tp_placed,
                         },
                     )
 
@@ -346,6 +350,8 @@ def main(dry_run: bool = None, run_once: bool = False):
                                 "tp_price": order_mgr.tp_price,
                                 "entry_price": order_mgr.entry_price,
                                 "sl_distance": order_mgr.sl_distance,
+                                "sl_placed": order_mgr.sl_placed,
+                                "tp_placed": order_mgr.tp_placed,
                             },
                         )
                     else:
@@ -365,6 +371,8 @@ def main(dry_run: bool = None, run_once: bool = False):
                     "tp_price": order_mgr.tp_price,
                     "entry_price": order_mgr.entry_price,
                     "sl_distance": order_mgr.sl_distance,
+                    "sl_placed": order_mgr.sl_placed,
+                    "tp_placed": order_mgr.tp_placed,
                 } if order_mgr.has_position else None,
             )
 
@@ -406,6 +414,8 @@ def main(dry_run: bool = None, run_once: bool = False):
             "tp_price": order_mgr.tp_price,
             "entry_price": order_mgr.entry_price,
             "sl_distance": order_mgr.sl_distance,
+            "sl_placed": order_mgr.sl_placed,
+            "tp_placed": order_mgr.tp_placed,
         } if order_mgr.has_position else None,
     )
 

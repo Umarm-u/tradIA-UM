@@ -218,7 +218,9 @@ class OrderManager:
             return
 
         direction = self.position["direction"]
-        close_side = self.position["close_side"]
+        close_side = self.position.get(
+            "close_side", "SELL" if direction == "LONG" else "BUY"
+        )
         qty = self.position["quantity"]
 
         current_price = self.client.get_current_price()
@@ -467,8 +469,11 @@ class OrderManager:
         if not self.has_position:
             return None
 
+        direction = self.position["direction"]
         return {
-            "direction": self.position["direction"],
+            "direction": direction,
+            "side": self.position.get("side", "BUY" if direction == "LONG" else "SELL"),
+            "close_side": self.position.get("close_side", "SELL" if direction == "LONG" else "BUY"),
             "quantity": self.position["quantity"],
             "entry_price": self.entry_price,
             "current_sl": self.current_sl,
@@ -477,5 +482,7 @@ class OrderManager:
             "trail_active": self.trail_active,
             "best_price": self.best_price,
             "sl_distance": self.sl_distance,
+            "sl_placed": self.sl_placed,
+            "tp_placed": self.tp_placed,
             "entry_time": self.position.get("entry_time", 0),
         }
