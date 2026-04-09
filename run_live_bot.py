@@ -103,6 +103,8 @@ def main(dry_run: bool = None, run_once: bool = False):
         total_balance = client.get_total_balance()
         log.info(f"  Available balance: ${balance:.2f} USDT")
         log.info(f"  Total balance:    ${total_balance:.2f} USDT")
+        if total_balance > 0 and balance == 0:
+            log.warning("  Available balance is $0 — existing position may be using all margin")
 
         # 2. Signal Engine (load models)
         log.info("[2/5] Loading trading models...")
@@ -296,7 +298,7 @@ def main(dry_run: bool = None, run_once: bool = False):
             # ── 3. Generate signal (only if no position) ──
             if not order_mgr.has_position:
                 # Check daily loss limit
-                balance = client.get_balance() if not actual_dry_run else client.get_total_balance()
+                balance = client.get_total_balance()
 
                 if not risk_mgr.check_daily_loss_limit(balance):
                     log.warning("Daily loss limit reached — skipping signal generation")
