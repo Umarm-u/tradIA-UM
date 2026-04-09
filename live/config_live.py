@@ -16,6 +16,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 # ─────────────────────────────────────────────
 BINANCE_API_KEY = os.getenv("BINANCE_API_KEY", "")
 BINANCE_API_SECRET = os.getenv("BINANCE_API_SECRET", "")
+BINANCE_TESTNET = os.getenv("BINANCE_TESTNET", "False").lower() in ("true", "1", "yes")
 
 # ─────────────────────────────────────────────
 # Trading Pair & Timeframe

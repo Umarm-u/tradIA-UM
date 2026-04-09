@@ -27,11 +27,24 @@ class BinanceClient:
     # ───────────── CONNECTION ─────────────
 
     def connect(self):
-        self.client = Client(
-            BINANCE_API_KEY,
-            BINANCE_API_SECRET,
-            requests_params={"timeout": API_TIMEOUT},
-        )
+        if BINANCE_TESTNET:
+            log.warning("=" * 60)
+            log.warning("  ⚠️  RUNNING IN BINANCE FUTURES TESTNET MODE  ⚠️")
+            log.warning("  No real funds will be used.")
+            log.warning("=" * 60)
+            self.client = Client(
+                BINANCE_API_KEY,
+                BINANCE_API_SECRET,
+                testnet=True,
+                requests_params={"timeout": API_TIMEOUT},
+            )
+        else:
+            log.info("Connecting to LIVE Binance Futures...")
+            self.client = Client(
+                BINANCE_API_KEY,
+                BINANCE_API_SECRET,
+                requests_params={"timeout": API_TIMEOUT},
+            )
 
         self._load_symbol_info()
         self._set_leverage()

@@ -43,6 +43,7 @@ def main(dry_run: bool = None, run_once: bool = False):
         SYMBOL, TIMEFRAME, TIMEFRAME_MINUTES, LEVERAGE,
         DRY_RUN, BUY_THRESHOLD, SELL_THRESHOLD,
         CANDLE_FETCH_DELAY, SESSION_FILTER_ENABLED,
+        BINANCE_TESTNET,
     )
     from live.logger import log
     from live.binance_client import BinanceClient
@@ -77,6 +78,8 @@ def main(dry_run: bool = None, run_once: bool = False):
     log.info("=" * 60)
     log.info("  tradIA Live Trading Bot")
     log.info("=" * 60)
+    env_mode = "TESTNET" if BINANCE_TESTNET else "LIVE"
+    log.info(f"  Environment:  {env_mode}")
     log.info(f"  Symbol:       {SYMBOL}")
     log.info(f"  Timeframe:    {TIMEFRAME}")
     log.info(f"  Leverage:     {LEVERAGE}x")
