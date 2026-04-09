@@ -35,9 +35,9 @@ class BinanceClient:
             self.client = Client(
                 BINANCE_API_KEY,
                 BINANCE_API_SECRET,
-                testnet=True,
                 requests_params={"timeout": API_TIMEOUT},
             )
+            self.client.FUTURES_URL = "https://demo-fapi.binance.com/fapi"
         else:
             log.info("Connecting to LIVE Binance Futures...")
             self.client = Client(
