@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tradIA — Account History</title>
+  <meta name="description" content="Binance demo account trade history and P&L analytics" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Shared stylesheet -->
+  <link rel="stylesheet" href="/css/styles.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+
+<body>
+
+<!-- ================================================================
+     NAVBAR
+     ================================================================ -->
+<header id="navbar">
+
+  <div class="nav-logo">
+    <img src="/logo2.svg" alt="tradIA logo" class="nav-logo-img" />
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <nav class="nav-links">
+    <a class="nav-link" href="/">Dashboard</a>
+    <a class="nav-link active" href="/history">Account History</a>
+  </nav>
+
+  <div class="nav-right">
+    <div class="nav-time" id="nav-clock">—</div>
+  </div>
+
+</header>
+
+<!-- ================================================================
+     MAIN CONTENT
+     ================================================================ -->
+<main class="history-main">
+
+  <!-- Page header -->
+  <div class="history-page-header">
+    <h1>Account Trade History</h1>
+    <span class="badge badge-blue">BTCUSDT</span>
+    <span class="label" id="mode-badge">TESTNET</span>
+
+    <div class="sync-bar">
+      <span style="font-size:11px;color:var(--text-3)">
+        Last sync: <span id="sync-time" class="mono">—</span>
+      </span>
+      <button class="sync-btn" id="sync-btn">&#8635; Sync Now</button>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- ── Summary stat cards ─────────────────────────────────────── -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-card__label">Net Profit</div>
+      <div class="summary-card__value" id="s-net-profit">—</div>
+      <div class="summary-card__sub">PnL − fees − funding</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Realized PnL</div>
+      <div class="summary-card__value" id="s-realized-pnl">—</div>
+      <div class="summary-card__sub">before deductions</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Total Fees</div>
+      <div class="summary-card__value" id="s-total-fees">—</div>
+      <div class="summary-card__sub">commissions paid</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Funding Fees</div>
+      <div class="summary-card__value" id="s-funding">—</div>
+      <div class="summary-card__sub">overnight carry cost</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Win Rate</div>
+      <div class="summary-card__value" id="s-winrate">—</div>
+      <div class="summary-card__sub" id="s-wins-losses">— W / — L</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Closed Trades</div>
+      <div class="summary-card__value" id="s-closed">—</div>
+      <div class="summary-card__sub" id="s-fills-sub">— fills total</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Avg Win</div>
+      <div class="summary-card__value" id="s-avg-win">—</div>
+      <div class="summary-card__sub">per winning trade</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Avg Loss</div>
+      <div class="summary-card__value" id="s-avg-loss">—</div>
+      <div class="summary-card__sub">per losing trade</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Reward / Risk</div>
+      <div class="summary-card__value" id="s-rr">—</div>
+      <div class="summary-card__sub">avg win ÷ |avg loss|</div>
+    </div>
+  </div>
+
+  <!-- ── Charts ─────────────────────────────────────────────────── -->
+  <div class="history-charts-row">
+
+    <!-- Cumulative PnL curve -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title-icon">📈</span>
+        <span class="panel-title">Cumulative Realized PnL</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-3)">USDT · per closed position</span>
+      </div>
+      <div style="padding:12px 16px 16px">
+        <div class="chart-canvas-wrap">
+          <canvas id="curve-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly PnL bars -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title-icon">📊</span>
+        <span class="panel-title">Monthly PnL</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-3)">USDT</span>
+      </div>
+      <div style="padding:12px 16px 16px">
+        <div class="chart-canvas-wrap">
+          <canvas id="monthly-canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Trade fills table ──────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title-icon">📋</span>
+      <span class="panel-title">Trade Fills</span>
+
+      <div class="dir-filter-btns" style="margin-left:16px">
+        <button class="dir-btn active" data-hfilter="ALL">All</button>
+        <button class="dir-btn buy"    data-hfilter="BUY">&#9650; BUY</button>
+        <button class="dir-btn sell"   data-hfilter="SELL">&#9660; SELL</button>
+        <button class="dir-btn"        data-hfilter="CLOSE">Closes Only</button>
+      </div>
+
+      <input
+        type="search"
+        class="search-input"
+        id="history-search"
+        placeholder="Search…"
+        autocomplete="off"
+        style="margin-left:10px;width:160px"
+      />
+
+      <span class="trades-count mono" id="history-count" style="margin-left:8px">— fills</span>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th data-hsort="time">
+              <div class="th-inner">Time <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="side">
+              <div class="th-inner">Side <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="price">
+              <div class="th-inner">Fill Price <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="qty">
+              <div class="th-inner">Qty (BTC) <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="quoteQty">
+              <div class="th-inner">Value (USDT) <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="realizedPnl">
+              <div class="th-inner">Realized PnL <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="commission">
+              <div class="th-inner">Fee <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th data-hsort="net">
+              <div class="th-inner">Net <span class="sort-arrow">&#8597;</span></div>
+            </th>
+            <th>Type</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr>
+            <td colspan="10" style="text-align:center;padding:40px;color:var(--text-3)">
+              Loading trade history…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="history-pagination"></div>
+  </div>
+
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="/js/history.js"></script>
+</body>
+</html>

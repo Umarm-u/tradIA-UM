@@ -1,0 +1,182 @@
+[LightGBM] [Fatal] Model format error, expect a tree here. met 
+[LightGBM] [Fatal] Model format error, expect a tree here. met  88
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0 172 138 109 88 50 88
+[LightGBM] [Fatal] Model format error, expect a tree here. met 
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0377169 0.0473415 -0.0112991 0.0618427 0.0495691 -0.0608675 -0.0608706 -0.0608724
+[LightGBM] [Fatal] Model format error, expect a tree here. met 8.5347 36.4782 23.3303
+[LightGBM] [Warning] Model format error, expect a tree here. met 0377169 0.0473415 -0.0112991 0.0618427 0.0495691 -0.0608675 -0.0608706 -0.0608724
+[LightGBM] [Fatal] Model format error, expect a tree here. met 6028 41.8406 22.4401 19.4005 17.6856
+[LightGBM] [Fatal] Model format error, expect a tree here. met _value=0.0170862 0.036167 0.00715918 0.0262629 0.0608996 0.0760743 -0.0602257 -0.0602285 -0.0602301
+[LightGBM] [Fatal] Model format error, expect a tree here. met 5353955 6.9201712757349005 7.0334001034498206 9.9623674899339694 13.26981180906296 11.677493333816527 7.7732055336236945 1.8867506086826322 1.770425461232662 2.1031229868531232
+[LightGBM] [Fatal] Model format error, expect a tree here. met 55.7797 14.3511 41.4286 21.8602 19.5684 17.1 13.3759
+[LightGBM] [Warning] Model format error, expect a tree here. met _value=0.0170862 0.036167 0.00715918 0.0262629 0.0608996 0.0760743 -0.0602257 -0.0602285 -0.0602301
+[LightGBM] [Warning] Model format error, expect a tree here. met 5353955 6.9201712757349005 7.0334001034498206 9.9623674899339694 13.26981180906296 11.677493333816527 7.7732055336236945 1.8867506086826322 1.770425461232662 2.1031229868531232
+[LightGBM] [Fatal] Model format error, expect a tree here. met  -6 -2
+[LightGBM] [Fatal] Model format error, expect a tree here. met f_weight=2.0065971687436104 8.371143624186514 10.310688786208635 11.025752276182173 13.578255400061606 5.9781701266765586 6.292324721813201 1.63218743354082 1.6272437945008276 2.41605594009161
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0000000006 0.0043340200614115946 1.0000000180025095e-35 0.0063684114333356261 36.500000000000007 0.0010552078986079633 1.0000000180025095e-35 0.00070013785643319182
+[LightGBM] [Warning] Model format error, expect a tree here. met f_weight=2.0065971687436104 8.371143624186514 10.310688786208635 11.025752276182173 13.578255400061606 5.9781701266765586 6.292324721813201 1.63218743354082 1.6272437945008276 2.41605594009161
+[LightGBM] [Fatal] Model format error, expect a tree here. met 259060675
+[LightGBM] [Warning] Model format error, expect a tree here. met  -6 -2
+[LightGBM] [Warning] Model format error, expect a tree here. met 259060675
+[LightGBM] [Warning] Model format error, expect a tree here. met 0000000006 0.0043340200614115946 1.0000000180025095e-35 0.0063684114333356261 36.500000000000007 0.0010552078986079633 1.0000000180025095e-35 0.00070013785643319182
+[LightGBM] [Fatal] Model format error, expect a tree here. met 2.9477595463395119 3.1787061709910622 3.1351000275462866 4.0306651368737221 3.203705605119465 0.26923369197174885 0.41113496012985706 0.44234649557620287
+[LightGBM] [Fatal] Model format error, expect a tree here. met ue=-0.052884897226284068 0.018937123591239152 0.037311430724821827 -0.049271021738482676 0.029278742581054937 -0.015541651068269241 0.06536621330924966 -0.054434085321096781 -0.052583918827058485 -0.053536626344519181
+[LightGBM] [Fatal] Model format error, expect a tree here. met =1.8412267118692396 7.279554635286333 6.872182846069335 6.9192409738898277 8.9932805150747299 5.0029136538505554 11.796689912676809 7.0972505658864975 1.5256475955247868 2.1256986856460576 1.5666031464934347
+[LightGBM] [Fatal] Model format error, expect a tree here. met 
+[LightGBM] [Fatal] Model format error, expect a tree here. met um_cat=0
+[LightGBM] [Warning] Model format error, expect a tree here. met ue=-0.052884897226284068 0.018937123591239152 0.037311430724821827 -0.049271021738482676 0.029278742581054937 -0.015541651068269241 0.06536621330924966 -0.054434085321096781 -0.052583918827058485 -0.053536626344519181
+[LightGBM] [Fatal] Model format error, expect a tree here. met _feature=2 4 37 46 18 11 7 6 51
+[LightGBM] [Fatal] Model format error, expect a tree here. met -8 -9 -10
+[LightGBM] [Warning] Model format error, expect a tree here. met 
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met -8 -9 -10
+Model format error, expect a tree here. met =1.8412267118692396 7.279554635286333 6.872182846069335 6.9192409738898277 8.9932805150747299 5.0029136538505554 11.796689912676809 7.0972505658864975 1.5256475955247868 2.1256986856460576 1.5666031464934347
+[LightGBM] [Warning] Model format error, expect a tree here. met 2.9477595463395119 3.1787061709910622 3.1351000275462866 4.0306651368737221 3.203705605119465 0.26923369197174885 0.41113496012985706 0.44234649557620287
+[LightGBM] [Warning] Model format error, expect a tree here. met um_cat=0
+[LightGBM] [Fatal] Model format error, expect a tree here. met .8493 16.614 46.2353 31.7248 14.0561 17.6688 16.5163 12.9171 9.37888
+[LightGBM] [Fatal] Model format error, expect a tree here. met 641011
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0.00781034 0.0341961 0.0593423 -0.0375615 0.0735224 -0.0598315 -0.059629 -0.0596322 -0.0596335
+[LightGBM] [Warning] Model format error, expect a tree here. met 641011
+[LightGBM] [Fatal] Model format error, expect a tree here. met 17 0.0029552696935222166 0.0069864956448948256 0.0026524392163907152 0.0034915628884553008 0.51977678734716892 -0.0011188891974996948
+[LightGBM] [Fatal] Model format error, expect a tree here. met -0.0168439 -0.0344241 0.00764277 0.0310575 0.0418337
+[LightGBM] [Fatal] Model format error, expect a tree here. met 
+[LightGBM] [Fatal] Model format error, expect a tree here. met child=1 -3 3 -5 5 -7 -8 -9 -10
+[LightGBM] [Warning] Model format error, expect a tree here. met 0.00781034 0.0341961 0.0593423 -0.0375615 0.0735224 -0.0598315 -0.059629 -0.0596322 -0.0596335
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0.0631074 -0.0631094
+[LightGBM] [Fatal] Model format error, expect a tree here. met  20 31
+[LightGBM] [Fatal] Model format error, expect a tree here. met 022 -0.063740868199171893 -0.055732486963793959
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0623062 -0.0623078
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met child=1 -3 3 -5 5 -7 -8 -9 -10
+[LightGBM] [Fatal] Model format error, expect a tree here. met -0.054950404077590775 0.0038682231097471559 -0.080859827961317174
+[LightGBM] [Fatal] Model format error, expect a tree here. met 405869 0.0811731 -0.0616925 -0.0615606 -0.0615627
+[LightGBM] [Warning] Model format error, expect a tree here. met  20 31
+[LightGBM] [Warning] [LightGBM] [Fatal] Model format error, expect a tree here. met 7 8 -1
+[LightGBM] [Warning] Model format error, expect a tree here. met 022 -0.063740868199171893 -0.055732486963793959
+[LightGBM] [Warning] Model format error, expect a tree here. met -0.0168439 -0.0344241 0.00764277 0.0310575 0.0418337Model format error, expect a tree here. met 7 8 -1
+
+Model format error, expect a tree here. met 17 0.0029552696935222166 0.0069864956448948256 0.0026524392163907152 0.0034915628884553008 0.51977678734716892 -0.0011188891974996948
+[LightGBM] [Warning] Model format error, expect a tree here. met -0.054950404077590775 0.0038682231097471559 -0.080859827961317174
+[LightGBM] [Fatal] Model format error, expect a tree here. met 992
+[LightGBM] [Fatal] Model format error, expect a tree here. met 38316995572984902 0.04815990972905778 0.052315940544248887 0.042998543701829345
+[LightGBM] [Warning] Model format error, expect a tree here. met _feature=2 4 37 46 18 11 7 6 51
+[LightGBM] [Warning] Model format error, expect a tree here. met 992
+[LightGBM] [Fatal] Model format error, expect a tree here. met  -0.062935723122263032
+[LightGBM] [Fatal] Model format error, expect a tree here. met af_count=23 29 27 20 20 20 35 20 20 24 24
+[LightGBM] [Warning] Model format error, expect a tree here. met 38316995572984902 0.04815990972905778 0.052315940544248887 0.042998543701829345
+[LightGBM] [Warning] Model format error, expect a tree here. met  -0.062935723122263032
+[LightGBM] [Fatal] Model format error, expect a tree here. met e-05 4.30697e-05 1.87808e-05
+[LightGBM] [Warning] Model format error, expect a tree here. met af_count=23 29 27 20 20 20 35 20 20 24 24
+[LightGBM] [Fatal] Model format error, expect a tree here. met .6365875005722046
+[LightGBM] [Fatal] Model format error, expect a tree here. met 247822 0.00903648 0.0191744 -0.0395977 0.0330893 0.0313559 0.0170263
+[LightGBM] [Warning] Model format error, expect a tree here. met .6365875005722046
+[LightGBM] [Fatal] Model format error, expect a tree here. met  3.405972458422184 2.1967974603176117
+[LightGBM] [Fatal] Model format error, expect a tree here. met 4996948 1.0000000180025095e-35 0.00039481582243050545 0.0020906742652116923
+[LightGBM] [Warning] Model format error, expect a tree here. met 247822 0.00903648 0.0191744 -0.0395977 0.0330893 0.0313559 0.0170263
+[LightGBM] [Fatal] Model format error, expect a tree here. met t_child=7 2 3 4 -2 6 -5 8 -1
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met 4996948 1.0000000180025095e-35 0.00039481582243050545 0.0020906742652116923
+Model format error, expect a tree here. met e-05 4.30697e-05 1.87808e-05
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0406990796328 3.0556600689888 1.1352322073653254
+[LightGBM] [Warning] Model format error, expect a tree here. met  3.405972458422184 2.1967974603176117
+[LightGBM] [Fatal] Model format error, expect a tree here. met um_leaves=10
+[LightGBM] [Fatal] Model format error, expect a tree here. met 59312437545205113 -0.013280261946465569 -0.062150700768280234 -0.062160461072510914
+[LightGBM] [Fatal] Model format error, expect a tree here. met 327 14.654924899339674 2.0785191804170591 2.4205355048179626 2.5248470604419708
+[LightGBM] [Warning] Model format error, expect a tree here. met 327 14.654924899339674 2.0785191804170591 2.4205355048179626 2.5248470604419708
+[LightGBM] [Warning] Model format error, expect a tree here. met um_leaves=10
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met 59312437545205113 -0.013280261946465569 -0.062150700768280234 -0.062160461072510914Model format error, expect a tree here. met t_child=7 2 3 4 -2 6 -5 8 -1
+
+[LightGBM] [Fatal] Model format error, expect a tree here. met 5 7.9830214828252855 13.627285525202749 9.8606741130352003 3.6207933723926544 2.8207230493426323
+[LightGBM] [Fatal] Model format error, expect a tree here. met 6 31 15
+[LightGBM] [Warning] Model format error, expect a tree here. met 5 7.9830214828252855 13.627285525202749 9.8606741130352003 3.6207933723926544 2.8207230493426323
+[LightGBM] [Warning] Model format error, expect a tree here. met 6 31 15
+[LightGBM] [Fatal] Model format error, expect a tree here. met 66 12.551694065332414 9.4455444514751417 4.9081268459558469 1.9461934566497783 1.9472829625010488 2.3138194754719734
+[LightGBM] [Fatal] Model format error, expect a tree here. met 38539314 1.3025136901997028
+[LightGBM] [Warning] Model format error, expect a tree here. met 0406990796328 3.0556600689888 1.1352322073653254
+[LightGBM] [Warning] Model format error, expect a tree here. met 38539314 1.3025136901997028
+[LightGBM] [Fatal] Model format error, expect a tree here. met 25095e-35 0.0057858476161255631 0.0010034224315320802 0.00067971807684835759 0.001705392399594677 0.0012165198933134736 1.0000000180025095e-35 442.50000000000006
+[LightGBM] [Fatal] Model format error, expect a tree here. met 39 31 26 22 26
+[LightGBM] [Warning] Model format error, expect a tree here. met 66 12.551694065332414 9.4455444514751417 4.9081268459558469 1.9461934566497783 1.9472829625010488 2.3138194754719734
+[LightGBM] [Warning] Model format error, expect a tree here. met 39 31 26 22 26
+[LightGBM] [Fatal] Model format error, expect a tree here. met 672349 2.5517527163028717 2.584243081510067 1.2473018337041137
+[LightGBM] [Fatal] Model format error, expect a tree here. met 6739 7.8246014267206183 7.983105897903445 11.438756898045538 13.667328000068663 4.4558348953723907 1.8329432532191265 1.8442666679620741
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0.0042992 0.0309588
+[LightGBM] [Fatal] Model format error, expect a tree here. met .049825547359469924 0.040494368356652218 -0.013342005809887775 0.070907288196154189 -0.061439885712673607
+[LightGBM] [Warning] Model format error, expect a tree here. met 25095e-35 0.0057858476161255631 0.0010034224315320802 0.00067971807684835759 0.001705392399594677 0.0012165198933134736 1.0000000180025095e-35 442.50000000000006
+[LightGBM] [Warning] Model format error, expect a tree here. met 0.0042992 0.0309588
+[LightGBM] [Fatal] Model format error, expect a tree here. met 4636 23.500000000000004 0.0079357579116431775 -0.0011188891974996948 1.0000000180025095e-35 -0.00019127297790988426
+[LightGBM] [Fatal] Model format error, expect a tree here. met 5 15 21 38 20 16
+[LightGBM] [Fatal] Model format error, expect a tree here. met ge=0.05
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met 4636 23.500000000000004 0.0079357579116431775 -0.0011188891974996948 1.0000000180025095e-35 -0.00019127297790988426
+[LightGBM] [Fatal] Model format error, expect a tree here. met -5 5 -7 -8 -9 -10 -11
+[LightGBM] [Fatal] Model format error, expect a tree here. met 7.28758e-05
+[LightGBM] [Warning] Model format error, expect a tree here. met .049825547359469924 0.040494368356652218 -0.013342005809887775 0.070907288196154189 -0.061439885712673607
+[LightGBM] [Warning] Model format error, expect a tree here. met -5 5 -7 -8 -9 -10 -11
+[LightGBM] [Warning] Model format error, expect a tree here. met ge=0.05
+[LightGBM] [Fatal] Model format error, expect a tree here. met 82257026872754935 0.047883589564055487 0.037256407775797043 -0.014968748654646214 0.069629154610423877 -0.060769192250615528
+[LightGBM] [Fatal] Model format error, expect a tree here. met is_linear=0
+[LightGBM] [Warning] Model format error, expect a tree here. met 5 15 21 38 20 16
+[LightGBM] [Fatal] Model format error, expect a tree here. met cision_type=2 2 2 2 2 2 2 2 2
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met is_linear=0
+Model format error, expect a tree here. met 672349 2.5517527163028717 2.584243081510067 1.2473018337041137
+[LightGBM] [Fatal] Model format error, expect a tree here. met ain=2.10412 3.7833 4.01743 2.54481 3.4834 2.2213 1.12799 0.849376 0.816508 0.244868 0.20446 0.0847809 0.00467137
+Model format error, expect a tree here. met 6739 7.8246014267206183 7.983105897903445 11.438756898045538 13.667328000068663 4.4558348953723907 1.8329432532191265 1.8442666679620741[LightGBM] [Warning] Model format error, expect a tree here. met 82257026872754935 0.047883589564055487 0.037256407775797043 -0.014968748654646214 0.069629154610423877 -0.060769192250615528
+[LightGBM] [Warning] 
+Model format error, expect a tree here. met 7.28758e-05
+[LightGBM] [Warning] Model format error, expect a tree here. met ain=2.10412 3.7833 4.01743 2.54481 3.4834 2.2213 1.12799 0.849376 0.816508 0.244868 0.20446 0.0847809 0.00467137
+[LightGBM] [Fatal] Model format error, expect a tree here. met 1 15 29 3 14 6 6 43 16
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0529721 0.0459064 -0.0622116 -0.0543519
+[LightGBM] [Warning] Model format error, expect a tree here. met 0529721 0.0459064 -0.0622116 -0.0543519
+[LightGBM] [Fatal] Model format error, expect a tree here. met 801481328786 0.013499710051514036 0.026216676923911244 0.067927118033324144 -0.060144106406774811
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0100578 0.0155119 0.0208665 0.0269967 0.00643345 0.0387806 0.0492906 -0.0533002 -0.0519308
+[LightGBM] [Warning] Model format error, expect a tree here. met 1 15 29 3 14 6 6 43 16
+[LightGBM] [Warning] [LightGBM] [Fatal] Model format error, expect a tree here. met 288 9.1551588028669375 7.7909176945686331 8.2141762673854846 11.229482918977736 13.032863110303877 4.3067031353712082 1.7552504688501347 1.763899579644203
+[LightGBM] [Fatal] Model format error, expect a tree here. met .62823 2.25187 1.55602 1.07279 0.00152199 0.00111936
+[LightGBM] [Warning] Model format error, expect a tree here. met 0100578 0.0155119 0.0208665 0.0269967 0.00643345 0.0387806 0.0492906 -0.0533002 -0.0519308
+[LightGBM] [Fatal] Model format error, expect a tree here. met 835 1.8177197864279149 2.0957782305777064 3.6122213937342167 1.239146616309881
+[LightGBM] [Fatal] Model format error, expect a tree here. met ternal_weight=26.804 24.0591 22.3984 16.2036 6.1948 13.2513 8.47138 1.66069 1.0449 0.596398
+[LightGBM] [Warning] Model format error, expect a tree here. met .62823 2.25187 1.55602 1.07279 0.00152199 0.00111936
+[LightGBM] [Fatal] Model format error, expect a tree here. met _cat=0
+[LightGBM] [Fatal] Model format error, expect a tree here. met 252 2.05663 2.00642 0.504042
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met ternal_weight=26.804 24.0591 22.3984 16.2036 6.1948 13.2513 8.47138 1.66069 1.0449 0.596398Model format error, expect a tree here. met 801481328786 0.013499710051514036 0.026216676923911244 0.067927118033324144 -0.060144106406774811
+[LightGBM] [Warning] Model format error, expect a tree here. met 252 2.05663 2.00642 0.504042
+[LightGBM] [Fatal] Model format error, expect a tree here. met f_value=-0.053782629548358954 0.0045969076898766731 0.051878271964579503 0.058140965961667401 -0.0031122462492799482 -0.063168824591255668 -0.054879897660083478 -0.052948508828544918 -0.053324928004728427
+[LightGBM] [Fatal] Model format error, expect a tree here. met 106 2.87276 3.14685 4.41314 2.62381 2.25064 1.63433
+
+[LightGBM] [Warning] Model format error, expect a tree here. met f_value=-0.053782629548358954 0.0045969076898766731 0.051878271964579503 0.058140965961667401 -0.0031122462492799482 -0.063168824591255668 -0.054879897660083478 -0.052948508828544918 -0.053324928004728427
+[LightGBM] [Warning] Model format error, expect a tree here. met 106 2.87276 3.14685 4.41314 2.62381 2.25064 1.63433
+Model format error, expect a tree here. met cision_type=2 2 2 2 2 2 2 2 2
+[LightGBM] [Warning] Model format error, expect a tree here. met 835 1.8177197864279149 2.0957782305777064 3.6122213937342167 1.239146616309881
+[LightGBM] [Warning] Model format error, expect a tree here. met 288 9.1551588028669375 7.7909176945686331 8.2141762673854846 11.229482918977736 13.032863110303877 4.3067031353712082 1.7552504688501347 1.763899579644203
+[LightGBM] [Fatal] Model format error, expect a tree here. met  4 -5 -6 -7 7 -9
+[LightGBM] [Warning] Model format error, expect a tree here. met _cat=0
+[LightGBM] [Fatal] Model format error, expect a tree here. met 89329093728 1.347440104465931 3.9871503189206123 1.9891984239220599 1.5396891604177652 3.1387785235419861 1.5164920208044352 1.8657385269179938 2.0328177670016885 3.467726357281208 1.2067696116864679
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0.05
+[LightGBM] [Fatal] Model format error, expect a tree here. met  3 -2 5 -3 -5 8 -1 -10
+[LightGBM] [Warning] Model format error, expect a tree here. met 89329093728 1.347440104465931 3.9871503189206123 1.9891984239220599 1.5396891604177652 3.1387785235419861 1.5164920208044352 1.8657385269179938 2.0328177670016885 3.467726357281208 1.2067696116864679
+[LightGBM] [Fatal] Model format error, expect a tree here. met ge=0.05
+[LightGBM] [Fatal] Model format error, expect a tree here. met 60626248091775 0.032414695399350421
+[LightGBM] [Warning] Model format error, expect a tree here. met 0.05
+[LightGBM] [Warning] Model format error, expect a tree here. met  4 -5 -6 -7 7 -9[LightGBM] [Warning] Model format error, expect a tree here. met 60626248091775 0.032414695399350421
+[LightGBM] [Fatal] Model format error, expect a tree here. met 0
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met ge=0.05
+Model format error, expect a tree here. met  3 -2 5 -3 -5 8 -1 -10
+[LightGBM] [Fatal] Model format error, expect a tree here. met 001960299559894883 -0.049340400428118179 0.047109510269515452 -0.032911906700691627 0.016913915316264867 0.0021123100671458562 -0.072920887800922707 0.02611061799932415
+
+[LightGBM] [Warning] Model format error, expect a tree here. met 001960299559894883 -0.049340400428118179 0.047109510269515452 -0.032911906700691627 0.016913915316264867 0.0021123100671458562 -0.072920887800922707 0.02611061799932415
+[LightGBM] [Fatal] Model format error, expect a tree here. met t_gain=4.95154 3.52246 4.81817 3.98511 2.95093 2.93725 3.70507 1.97998 0.4777
+[LightGBM] [Warning] Model format error, expect a tree here. met 0
+[LightGBM] [Warning] Model format error, expect a tree here. met t_gain=4.95154 3.52246 4.81817 3.98511 2.95093 2.93725 3.70507 1.97998 0.4777
+[LightGBM] [Fatal] Model format error, expect a tree here. met 191795340013704 0.8087752373894449
+[LightGBM] [Fatal] Model format error, expect a tree here. met 55 36 58 51
+[LightGBM] [Fatal] Model format error, expect a tree here. met 3 0.02478449829947809 -0.03605636773759642 0.0066766820244004241 -0.072761569314361466 0.053175458604005001
+[LightGBM] [Warning] Model format error, expect a tree here. met 55 36 58 51
+[LightGBM] [Fatal] Model format error, expect a tree here. met  58 42 75 41 55
+[LightGBM] [Warning] Model format error, expect a tree here. met 191795340013704 0.8087752373894449
+[LightGBM] [Fatal] Model format error, expect a tree here. met  2 2 2 2 2 2
+[LightGBM] [Warning] Model format error, expect a tree here. met 3 0.02478449829947809 -0.03605636773759642 0.0066766820244004241 -0.072761569314361466 0.053175458604005001
+[LightGBM] [Warning] [LightGBM] [Warning] Model format error, expect a tree here. met  2 2 2 2 2 2
+Model format error, expect a tree here. met  58 42 75 41 55
+[LightGBM] [Fatal] Model format error, expect a tree here. met t=1.5503589753061535 3.3991761249490091 1.9632690302096301 3.6309237321838745 1.4678802033886342 2.0598861621692777 1.5260510537773369 2.2473578276112676 1.8980951453559054 2.6984890438616276
+[LightGBM] [Fatal] Model format error, expect a tree here. met ure=3 6 5 24 0 25 39 50 3 16 39
+[LightGBM] [Warning] Model format error, expect a tree here. met t=1.5503589753061535 3.3991761249490091 1.9632690302096301 3.6309237321838745 1.4678802033886342 2.0598861621692777 1.5260510537773369 2.2473578276112676 1.8980951453559054 2.6984890438616276
+[LightGBM] [Warning] Model format error, expect a tree here. met ure=3 6 5 24 0 25 39 50 3 16 39
+[LightGBM] [Fatal] Model format error, expect a tree here. met 8473208990062 1.2395430472796249 23.500000000000004 1.0000000180025095e-35
+[LightGBM] [Warning] Model format error, expect a tree here. met 8473208990062 1.2395430472796249 23.500000000000004 1.0000000180025095e-35

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tradIA — Crypto Trading Dashboard</title>
+  <meta name="description" content="Real-time BTC/USDT trading dashboard powered by tradIA" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/styles.css" />
+
+  <!-- TradingView Lightweight Charts -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+
+  <!-- Chart.js + date adapter + zoom plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+
+<body>
+
+<!-- ================================================================
+     NAVIGATION / HEADER
+     ================================================================ -->
+<header id="navbar">
+
+  <!-- Logo -->
+  <div class="nav-logo">
+    <img src="/logo2.svg" alt="tradIA logo" class="nav-logo-img" />
+  </div>
+
+  <div class="nav-divider"></div>
+
+  <!-- Page navigation -->
+  <nav class="nav-links">
+    <a class="nav-link active" href="/">Dashboard</a>
+    <a class="nav-link" href="/history">Account History</a>
+  </nav>
+
+  <div class="nav-divider"></div>
+
+  <!-- Live price ticker -->
+  <div class="nav-ticker">
+    <span class="nav-ticker__symbol">BTC/USDT</span>
+    <span class="nav-ticker__price mono" id="ticker-price">—</span>
+    <span class="nav-ticker__change" id="ticker-change">—</span>
+
+    <div class="nav-ticker__stats">
+      <div class="nav-stat">
+        <span class="nav-stat__label">24h High</span>
+        <span class="nav-stat__value mono" id="stat-24h-high">—</span>
+      </div>
+      <div class="nav-stat">
+        <span class="nav-stat__label">24h Low</span>
+        <span class="nav-stat__value mono" id="stat-24h-low">—</span>
+      </div>
+      <div class="nav-stat">
+        <span class="nav-stat__label">Volume</span>
+        <span class="nav-stat__value mono" id="stat-24h-vol">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right cluster -->
+  <div class="nav-right">
+    <div class="conn-indicator">
+      <div class="conn-dot" id="conn-dot"></div>
+      <span id="conn-text">Connecting…</span>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="bot-status-badge stopped" id="bot-status-badge">
+      <div class="bot-status-dot" id="bot-status-dot"></div>
+      <span id="bot-status-text">BOT OFFLINE</span>
+    </div>
+
+    <div class="nav-time" id="nav-clock">—</div>
+  </div>
+</header>
+
+<!-- ================================================================
+     MAIN DASHBOARD
+     ================================================================ -->
+<main class="dashboard-main">
+
+  <!-- ── ROW 1: Chart + Portfolio ──────────────────────────────── -->
+  <div class="row-1">
+
+    <!-- Price Chart Panel -->
+    <div class="panel" id="chart-panel">
+
+      <!-- Toolbar -->
+      <div class="chart-toolbar">
+        <span class="chart-symbol">BTCUSDT</span>
+        <span class="label" style="margin-left:4px">PERP</span>
+
+        <div class="interval-btns">
+          <button class="interval-btn" data-interval="5m">5m</button>
+          <button class="interval-btn active" data-interval="15m">15m</button>
+          <button class="interval-btn" data-interval="1h">1H</button>
+          <button class="interval-btn" data-interval="4h">4H</button>
+          <button class="interval-btn" data-interval="1d">1D</button>
+        </div>
+
+        <!-- Legend indicators -->
+        <div style="display:flex;gap:10px;margin-left:12px;align-items:center">
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#94a3b8">
+            <span style="width:20px;height:2px;background:#1890ff;display:inline-block;border-radius:1px"></span>EMA 20
+          </span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#94a3b8">
+            <span style="width:20px;height:2px;background:#f0b90b;display:inline-block;border-radius:1px"></span>EMA 50
+          </span>
+        </div>
+
+        <!-- OHLCV info bar -->
+        <div class="chart-info-bar">
+          <span class="chart-ohlcv">
+            <span id="chart-o" style="color:var(--text-3)">O: —</span>&nbsp;
+            <span id="chart-h" style="color:var(--green)">H: —</span>&nbsp;
+            <span id="chart-l" style="color:var(--red)">L: —</span>&nbsp;
+            <span id="chart-c">C: —</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Chart canvas -->
+      <div id="chart-container"></div>
+    </div>
+
+    <!-- Portfolio Panel -->
+    <div class="panel" id="portfolio-panel">
+
+      <!-- Active Position -->
+      <div class="stats-section-title">Active Position</div>
+      <div id="position-card" class="position-card empty">
+        <span>No active position</span>
+      </div>
+
+      <!-- Daily Session -->
+      <div class="stats-section-title" style="margin-top:4px">Live Session</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;background:var(--border)">
+        <div class="stat-card" style="background:var(--bg-panel)">
+          <div class="stat-card__label">Session PnL</div>
+          <div class="stat-card__value" style="font-size:14px" id="daily-session-pnl">—</div>
+        </div>
+        <div class="stat-card" style="background:var(--bg-panel)">
+          <div class="stat-card__label">Trades Today</div>
+          <div class="stat-card__value" style="font-size:14px" id="daily-session-trades">—</div>
+        </div>
+      </div>
+
+      <!-- Alert banners -->
+      <div class="alert-banner warn" id="alert-loss">
+        <span>⚠</span> Daily loss threshold approaching
+      </div>
+      <div class="alert-banner danger" id="alert-dd">
+        <span>⛔</span> Drawdown alert — risk elevated
+      </div>
+
+      <!-- Backtest Stats -->
+      <div class="stats-section-title" style="margin-top:4px">Backtest Performance</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__label">Win Rate</div>
+          <div class="stat-card__value" id="stat-winrate">—</div>
+          <div class="stat-card__sub">combined</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Total Return</div>
+          <div class="stat-card__value" id="stat-totalreturn">—</div>
+          <div class="stat-card__sub">avg buy+sell</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Profit Factor</div>
+          <div class="stat-card__value" id="stat-pf">—</div>
+          <div class="stat-card__sub">avg buy+sell</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Sharpe Ratio</div>
+          <div class="stat-card__value" id="stat-sharpe">—</div>
+          <div class="stat-card__sub">avg buy+sell</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Max Drawdown</div>
+          <div class="stat-card__value" id="stat-maxdd">—</div>
+          <div class="stat-card__sub">worst case</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Total Trades</div>
+          <div class="stat-card__value" id="stat-trades">—</div>
+          <div class="stat-card__sub">backtest</div>
+        </div>
+      </div>
+
+      <!-- Risk Indicators -->
+      <div class="risk-bar-section">
+        <div class="risk-indicator">
+          <div class="risk-label-row">
+            <span>Daily Loss Used</span>
+            <span class="mono" id="risk-daily-pct">0%</span>
+          </div>
+          <div class="risk-bar-track">
+            <div class="risk-bar-fill safe" id="risk-daily-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="risk-indicator">
+          <div class="risk-label-row">
+            <span>Max Drawdown</span>
+            <span class="mono" id="risk-dd-pct">0%</span>
+          </div>
+          <div class="risk-bar-track">
+            <div class="risk-bar-fill safe" id="risk-dd-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /row-1 -->
+
+
+  <!-- ── ROW 2: Equity Curve + Analytics ──────────────────────── -->
+  <div class="row-2">
+
+    <!-- Equity Chart Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title-icon">📈</span>
+        <span class="panel-title">Equity Curve</span>
+
+        <span style="margin:0 10px;font-size:11px;color:var(--text-3)">Start: 100</span>
+        <span style="font-size:11px;color:var(--text-2)">
+          Final: <span class="mono accent" id="equity-final">—</span>
+          &nbsp;
+          <span id="equity-return-label"></span>
+        </span>
+
+        <div class="time-filter-btns" style="margin-left:auto">
+          <button class="tf-btn" data-tf="3M">3M</button>
+          <button class="tf-btn" data-tf="6M">6M</button>
+          <button class="tf-btn" data-tf="1Y">1Y</button>
+          <button class="tf-btn" data-tf="2Y">2Y</button>
+          <button class="tf-btn active" data-tf="ALL">ALL</button>
+        </div>
+      </div>
+      <div id="equity-chart-wrap">
+        <canvas id="equity-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Analytics / Breakdown Panel -->
+    <div class="panel" id="breakdown-panel">
+      <div class="panel-header">
+        <span class="panel-title-icon">📊</span>
+        <span class="panel-title">Model Analytics</span>
+      </div>
+
+      <!-- Tabs: BUY / SELL -->
+      <div class="breakdown-tabs">
+        <div class="bdtab active" data-tab="BUY">▲ BUY Model</div>
+        <div class="bdtab"        data-tab="SELL">▼ SELL Model</div>
+      </div>
+
+      <!-- Stats table -->
+      <div style="overflow-y:auto;flex:1">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <tbody id="breakdown-table-body">
+            <tr><td colspan="2" style="padding:20px;text-align:center;color:var(--text-3)">Loading…</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Exit reason breakdown -->
+        <div class="exit-reason-bar">
+          <div class="label" style="margin-bottom:4px">Exit Breakdown</div>
+          <div class="er-row">
+            <span class="er-label">Trail SL</span>
+            <div class="er-bar-track">
+              <div class="er-bar-fill er-fill-trail" id="er-trail" style="width:0%"></div>
+            </div>
+            <span class="er-count" id="er-trail-count">—</span>
+          </div>
+          <div class="er-row">
+            <span class="er-label">Stop Loss</span>
+            <div class="er-bar-track">
+              <div class="er-bar-fill er-fill-sl" id="er-sl" style="width:0%"></div>
+            </div>
+            <span class="er-count" id="er-sl-count">—</span>
+          </div>
+          <div class="er-row">
+            <span class="er-label">Take Profit</span>
+            <div class="er-bar-track">
+              <div class="er-bar-fill er-fill-tp" id="er-tp" style="width:0%"></div>
+            </div>
+            <span class="er-count" id="er-tp-count">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row-2 -->
+
+
+  <!-- ── ROW 3: Trade History ──────────────────────────────────── -->
+  <div class="panel" id="trades-panel">
+    <div class="panel-header">
+      <span class="panel-title-icon">📋</span>
+      <span class="panel-title">Trade History</span>
+
+      <!-- Source tabs -->
+      <div class="breakdown-tabs" style="margin-left:16px;border-bottom:none;flex-shrink:0">
+        <div class="bdtab active" id="tab-backtest" data-source="backtest"
+             style="padding:4px 14px;font-size:10px">
+          BACKTEST <span class="badge badge-blue" id="bt-trade-count" style="margin-left:4px">—</span>
+        </div>
+        <div class="bdtab" id="tab-live" data-source="live"
+             style="padding:4px 14px;font-size:10px">
+          LIVE <span class="badge badge-green" id="live-trade-count" style="margin-left:4px">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table controls -->
+    <div class="trades-controls">
+      <div class="dir-filter-btns">
+        <button class="dir-btn active" data-dir="ALL">All</button>
+        <button class="dir-btn buy"  data-dir="BUY">▲ BUY</button>
+        <button class="dir-btn sell" data-dir="SELL">▼ SELL</button>
+      </div>
+
+      <input
+        type="search"
+        class="search-input"
+        id="trade-search"
+        placeholder="Search trades…"
+        autocomplete="off"
+      />
+
+      <span class="trades-count" id="trades-count">0 trades</span>
+    </div>
+
+    <!-- ── BACKTEST TABLE ── -->
+    <div id="backtest-table-wrap">
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-sort="entry_time"><div class="th-inner">Entry Time <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="direction"><div class="th-inner">Side <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="entry_price"><div class="th-inner">Entry <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="exit_price"><div class="th-inner">Exit <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="net_pnl_pct"><div class="th-inner">Net PnL % <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="exit_reason"><div class="th-inner">Exit Reason <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="confidence"><div class="th-inner">Confidence <span class="sort-arrow">↕</span></div></th>
+              <th data-sort="holding_bars"><div class="th-inner">Hold Time <span class="sort-arrow">↕</span></div></th>
+              <th>Trailing</th>
+            </tr>
+          </thead>
+          <tbody id="trades-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">Loading trades…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="trades-pagination"></div>
+    </div>
+
+    <!-- ── LIVE TABLE ── -->
+    <div id="live-table-wrap" style="display:none">
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-sort-live="entry_time"><div class="th-inner">Entry Time <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="direction"><div class="th-inner">Side <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="entry_price"><div class="th-inner">Entry Price <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="sl_price"><div class="th-inner">SL <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="tp_price"><div class="th-inner">TP <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="pnl_usdt"><div class="th-inner">PnL (USDT) <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="exit_time"><div class="th-inner">Exit Time <span class="sort-arrow">↕</span></div></th>
+              <th data-sort-live="confidence"><div class="th-inner">Confidence <span class="sort-arrow">↕</span></div></th>
+              <th>Trailing</th>
+            </tr>
+          </thead>
+          <tbody id="live-trades-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">Loading live trades…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="live-trades-pagination"></div>
+    </div>
+
+  </div><!-- /trades-panel -->
+
+
+  <!-- ── ROW 4: Logs + Controls ────────────────────────────────── -->
+  <div class="row-4">
+
+    <!-- Signal & Activity Logs -->
+    <div class="panel" id="logs-panel">
+      <div class="panel-header">
+        <span class="panel-title-icon">📡</span>
+        <span class="panel-title">Signal & Bot Activity Logs</span>
+
+        <!-- Level filter -->
+        <div class="log-level-btns" style="margin-left:12px">
+          <button class="lvl-btn all active"  data-level="ALL">ALL</button>
+          <button class="lvl-btn info"        data-level="INFO">INFO</button>
+          <button class="lvl-btn warning"     data-level="WARNING">WARN</button>
+          <button class="lvl-btn error"       data-level="ERROR">ERROR</button>
+        </div>
+
+        <!-- Auto-scroll toggle -->
+        <div class="autoscroll-toggle" id="autoscroll-toggle" style="margin-left:auto">
+          <div class="toggle-switch on"></div>
+          <span>Auto-scroll</span>
+        </div>
+      </div>
+
+      <!-- Console output -->
+      <div id="logs-console">
+        <div class="logs-empty">
+          <div>
+            <div style="font-size:24px;margin-bottom:8px;opacity:.3">📋</div>
+            <div>No logs available</div>
+            <div style="font-size:10px;margin-top:4px;color:var(--text-3)">
+              Start the bot to see activity here
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="panel" id="controls-panel">
+      <div class="panel-header">
+        <span class="panel-title-icon">⚙</span>
+        <span class="panel-title">Bot Configuration</span>
+      </div>
+
+      <div class="controls-body">
+
+        <!-- Risk per trade -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>Risk per Trade</span>
+            <span class="control-value" id="ctrl-risk-val">2.0%</span>
+          </div>
+          <input
+            type="range"
+            class="range-slider"
+            id="ctrl-risk"
+            min="0.5" max="10" step="0.5"
+            value="2"
+          />
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-top:2px">
+            <span>0.5%</span><span>10%</span>
+          </div>
+        </div>
+
+        <!-- Max daily loss -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>Max Daily Loss</span>
+            <span class="control-value" id="ctrl-loss-val">5.0%</span>
+          </div>
+          <input
+            type="range"
+            class="range-slider"
+            id="ctrl-loss"
+            min="1" max="25" step="0.5"
+            value="5"
+          />
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-top:2px">
+            <span>1%</span><span>25%</span>
+          </div>
+        </div>
+
+        <!-- BUY threshold -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>BUY Threshold</span>
+            <span class="control-value" id="ctrl-buy-thresh-val">0.600</span>
+          </div>
+          <input
+            type="range"
+            class="range-slider"
+            id="ctrl-buy-thresh"
+            min="40" max="95" step="1"
+            value="60"
+          />
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-top:2px">
+            <span>0.40</span><span>0.95</span>
+          </div>
+        </div>
+
+        <!-- SELL threshold -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>SELL Threshold</span>
+            <span class="control-value" id="ctrl-sell-thresh-val">0.775</span>
+          </div>
+          <input
+            type="range"
+            class="range-slider"
+            id="ctrl-sell-thresh"
+            min="40" max="95" step="1"
+            value="77"
+          />
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);margin-top:2px">
+            <span>0.40</span><span>0.95</span>
+          </div>
+        </div>
+
+        <!-- Trading Mode -->
+        <div class="control-group">
+          <div class="control-label" style="margin-bottom:6px">
+            <span>Trading Mode</span>
+          </div>
+          <div class="mode-toggle-wrap">
+            <button class="mode-btn active dry" id="mode-dry">DRY RUN</button>
+            <button class="mode-btn live"       id="mode-live">⚠ LIVE</button>
+          </div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:4px">
+            DRY RUN = no real orders placed
+          </div>
+        </div>
+
+        <!-- Save button -->
+        <button class="save-btn" id="save-config-btn">
+          Save Configuration
+        </button>
+
+      </div>
+    </div>
+
+  </div><!-- /row-4 -->
+
+</main><!-- /dashboard-main -->
+
+
+<!-- ================================================================
+     CONFIRMATION MODAL
+     ================================================================ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Confirm</div>
+    <div class="modal-body"  id="modal-body">Are you sure?</div>
+    <div class="modal-actions">
+      <button class="btn-cancel"  id="modal-cancel">Cancel</button>
+      <button class="btn-confirm" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     TOAST CONTAINER
+     ================================================================ -->
+<div id="toast-container"></div>
+
+<!-- ================================================================
+     JavaScript
+     ================================================================ -->
+<script src="/js/app.js"></script>
+
+</body>
+</html>

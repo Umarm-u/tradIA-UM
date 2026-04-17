@@ -32,11 +32,18 @@ class BinanceClient:
             log.warning("  ⚠️  RUNNING IN BINANCE FUTURES TESTNET MODE  ⚠️")
             log.warning("  No real funds will be used.")
             log.warning("=" * 60)
-            self.client = Client(
-                BINANCE_API_KEY,
-                BINANCE_API_SECRET,
-                requests_params={"timeout": API_TIMEOUT},
-            )
+            # The Client constructor pings api.binance.com (spot) which may be
+            # unreachable.  We only use Futures endpoints, so skip that ping.
+            _orig_ping = Client.ping
+            Client.ping = lambda self: {}
+            try:
+                self.client = Client(
+                    BINANCE_API_KEY,
+                    BINANCE_API_SECRET,
+                    requests_params={"timeout": API_TIMEOUT},
+                )
+            finally:
+                Client.ping = _orig_ping
             self.client.FUTURES_URL = "https://demo-fapi.binance.com/fapi"
         else:
             log.info("Connecting to LIVE Binance Futures...")
