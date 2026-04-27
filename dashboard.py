@@ -731,20 +731,27 @@ def _sync_history() -> dict:
     # because those income types are unsupported there — treat as non-fatal.
     errors = [e for e in (err1, err2) if e]
 
-    # If all live sources returned empty, preserve whatever is already cached
-    # (demo testnet wipes API history while keeping it visible in the UI).
-    def _keep(live, key):
-        if isinstance(live, list) and live:
-            return live
-        return cache.get(key, [])
+    # Merge live results with existing cache so history is never lost.
+    # New entries from the API are added; cached entries not returned by the
+    # API (e.g. after a demo-testnet wipe) are kept.  Dedup by "id" / "tradeId".
+    def _merge(live, key, id_field):
+        cached   = cache.get(key, [])
+        if not isinstance(live, list):
+            return cached
+        existing = {str(e.get(id_field)) for e in cached if e.get(id_field) is not None}
+        merged   = list(cached)
+        for entry in live:
+            if str(entry.get(id_field)) not in existing:
+                merged.append(entry)
+        return sorted(merged, key=lambda e: e.get("time", 0))
 
     new_cache = {
         "synced_at":    now,
         "synced_human": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "trades":       _keep(trades,   "trades"),
-        "income_pnl":   _keep(inc_pnl,  "income_pnl"),
-        "income_comm":  _keep(inc_comm, "income_comm"),
-        "income_fund":  _keep(inc_fund, "income_fund"),
+        "trades":       _merge(trades,   "trades",      "id"),
+        "income_pnl":   _merge(inc_pnl,  "income_pnl",  "tradeId"),
+        "income_comm":  _merge(inc_comm, "income_comm", "tradeId"),
+        "income_fund":  _merge(inc_fund, "income_fund", "tradeId"),
         "error":        errors[0] if errors else None,
     }
 
