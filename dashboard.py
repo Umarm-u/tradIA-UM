@@ -688,6 +688,44 @@ def _sync_history() -> dict:
     inc_comm, err3 = _fetch("/income", {"symbol": symbol, "incomeType": "COMMISSION",    "limit": 1000})
     inc_fund, err4 = _fetch("/income", {"symbol": symbol, "incomeType": "FUNDING_FEE",   "limit": 1000})
 
+    # If the fill endpoint returns nothing (demo testnet wipes fill history but
+    # retains order history), fall back to /allOrders for the last 89 days.
+    if isinstance(trades, list) and len(trades) == 0:
+        start_ms = int((_time.time() - 89 * 24 * 3600) * 1000)
+        orders, _ = _fetch("/allOrders", {"symbol": symbol, "limit": 1000, "startTime": start_ms})
+        if isinstance(orders, list):
+            filled = [o for o in orders
+                      if o.get("status") == "FILLED" and o.get("type") != "LIQUIDATION"]
+            trades = [{
+                "id":              o.get("orderId"),
+                "orderId":         o.get("orderId"),
+                "side":            o.get("side", ""),
+                "positionSide":    o.get("positionSide", "BOTH"),
+                "price":           _safe_float(o.get("avgPrice", 0)),
+                "qty":             _safe_float(o.get("executedQty", 0)),
+                "quoteQty":        _safe_float(o.get("cumQuote", 0)),
+                "realizedPnl":     _safe_float(o.get("realizedPnl", 0)),
+                "commission":      0.0,
+                "commissionAsset": "USDT",
+                "maker":           False,
+                "time":            o.get("updateTime", o.get("time", 0)),
+                "buyer":           o.get("side") == "BUY",
+            } for o in filled]
+            # Derive income_pnl from orders when the income endpoint is also empty
+            if isinstance(inc_pnl, list) and len(inc_pnl) == 0:
+                inc_pnl = [
+                    {
+                        "symbol":     symbol,
+                        "incomeType": "REALIZED_PNL",
+                        "income":     str(t["realizedPnl"]),
+                        "asset":      "USDT",
+                        "time":       t["time"],
+                        "tradeId":    str(t["orderId"]),
+                    }
+                    for t in trades
+                    if t["realizedPnl"] != 0.0
+                ]
+
     # Only surface errors from critical endpoints (trades + realized PnL).
     # Commission and funding-fee endpoints return 400 on demo-fapi testnet
     # because those income types are unsupported there — treat as non-fatal.
