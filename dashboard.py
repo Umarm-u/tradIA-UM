@@ -731,13 +731,20 @@ def _sync_history() -> dict:
     # because those income types are unsupported there — treat as non-fatal.
     errors = [e for e in (err1, err2) if e]
 
+    # If all live sources returned empty, preserve whatever is already cached
+    # (demo testnet wipes API history while keeping it visible in the UI).
+    def _keep(live, key):
+        if isinstance(live, list) and live:
+            return live
+        return cache.get(key, [])
+
     new_cache = {
         "synced_at":    now,
         "synced_human": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "trades":       trades   if isinstance(trades,   list) else cache.get("trades",      []),
-        "income_pnl":   inc_pnl  if isinstance(inc_pnl,  list) else cache.get("income_pnl",  []),
-        "income_comm":  inc_comm if isinstance(inc_comm, list) else cache.get("income_comm", []),
-        "income_fund":  inc_fund if isinstance(inc_fund, list) else cache.get("income_fund", []),
+        "trades":       _keep(trades,   "trades"),
+        "income_pnl":   _keep(inc_pnl,  "income_pnl"),
+        "income_comm":  _keep(inc_comm, "income_comm"),
+        "income_fund":  _keep(inc_fund, "income_fund"),
         "error":        errors[0] if errors else None,
     }
 
