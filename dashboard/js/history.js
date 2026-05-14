@@ -72,6 +72,8 @@ const H = {
   search:         '',
   curveChart:     null,
   monthlyChart:   null,
+  dateFrom: new Date('2026-04-11T00:00:00Z').getTime(),
+  dateTo:   new Date('2026-04-30T23:59:59Z').getTime(),
 };
 
 /* ================================================================
@@ -103,20 +105,15 @@ function setCard(id, text, color) {
 }
 
 function renderSummary(s) {
-  const net = s.net_profit ?? 0;
-  setCard('#s-net-profit',    fmtUsdt(net, true),
-    net >= 0 ? 'var(--green)' : 'var(--red)');
+  // Show Realized PnL as headline (pre-fee = true signal quality)
+  const pnl = s.total_realized_pnl ?? 0;
+  setCard('#s-net-profit', fmtUsdt(pnl, true),
+    pnl >= 0 ? 'var(--green)' : 'var(--red)');
 
-  const rPnl = s.total_realized_pnl ?? 0;
-  setCard('#s-realized-pnl', fmtUsdt(rPnl, true),
-    rPnl >= 0 ? 'var(--green)' : 'var(--red)');
-
-  const fees = Math.abs(s.total_commission ?? 0);
-  setCard('#s-total-fees', `-$${fmt(fees, 2)}`, 'var(--red)');
-
-  const fund = s.total_funding ?? 0;
-  setCard('#s-funding', fmtUsdt(fund, true),
-    fund >= 0 ? 'var(--green)' : 'var(--red)');
+  // Silently update hidden elements so rest of code doesn't break
+  setCard('#s-realized-pnl', fmtUsdt(pnl, true));
+  setCard('#s-total-fees',   '—');
+  setCard('#s-funding',      '—');
 
   setCard('#s-winrate', ((s.win_rate ?? 0) * 100).toFixed(1) + '%');
   const wlEl = $('#s-wins-losses');
@@ -127,12 +124,9 @@ function renderSummary(s) {
   if (fillsEl) fillsEl.textContent = `${s.total_fills ?? 0} fills total`;
 
   const aw = s.avg_win ?? 0;
-  setCard('#s-avg-win',  `+$${fmt(aw,  2)}`, 'var(--green)');
-
-  const al = s.avg_loss ?? 0;
-  setCard('#s-avg-loss', `-$${fmt(Math.abs(al), 2)}`, 'var(--red)');
-
-  setCard('#s-rr', (s.rr_ratio ?? 0).toFixed(2) + 'R');
+  setCard('#s-avg-win',  `+$${fmt(aw, 2)}`,             'var(--green)');
+  setCard('#s-avg-loss', `-$${fmt(Math.abs(s.avg_loss ?? 0), 2)}`, 'var(--red)');
+  setCard('#s-rr',       (s.rr_ratio ?? 0).toFixed(2) + 'R');
 
   const syncEl = $('#sync-time');
   if (syncEl) syncEl.textContent = s.synced_at ?? '—';
@@ -140,7 +134,6 @@ function renderSummary(s) {
   if (s.error) showError(s.error);
   else         showError(null);
 }
-
 /* ================================================================
    Cumulative PnL chart (area)
    ================================================================ */
@@ -286,6 +279,8 @@ function applyFilters() {
   if (H.filter === 'BUY')   rows = rows.filter(r => r.side === 'BUY');
   if (H.filter === 'SELL')  rows = rows.filter(r => r.side === 'SELL');
   if (H.filter === 'CLOSE') rows = rows.filter(r => r.realizedPnl !== 0);
+  if (H.dateFrom) rows = rows.filter(r => r.time >= H.dateFrom);
+  if (H.dateTo)   rows = rows.filter(r => r.time <= H.dateTo);
 
   if (H.search) {
     const q = H.search.toLowerCase();
@@ -604,6 +599,44 @@ function bindEvents() {
     });
   });
 
+  // Date range filter
+const applyDateBtn = $('#apply-date-btn');
+const allTimeBtn   = $('#all-time-btn');
+const dateFrom     = $('#date-from');
+const dateTo       = $('#date-to');
+
+if (applyDateBtn) {
+  applyDateBtn.addEventListener('click', () => {
+    H.dateFrom = dateFrom?.value
+      ? new Date(dateFrom.value + 'T00:00:00Z').getTime() : null;
+    H.dateTo   = dateTo?.value
+      ? new Date(dateTo.value   + 'T23:59:59Z').getTime() : null;
+    renderTable();
+    // Recompute summary for the filtered date window
+    const filtered = H.income.filter(e => {
+      if (H.dateFrom && e.time < H.dateFrom) return false;
+      if (H.dateTo   && e.time > H.dateTo)   return false;
+      return true;
+    });
+    if (filtered.length) {
+      const s = computeFilteredSummary(filtered, { synced_at: '—', total_fills: H.trades.length });
+      renderSummary(s);
+      renderCurveChart(s.curve    || []);
+      renderMonthlyChart(s.monthly || []);
+    }
+  });
+}
+
+if (allTimeBtn) {
+  allTimeBtn.addEventListener('click', () => {
+    H.dateFrom = null;
+    H.dateTo   = null;
+    if (dateFrom) dateFrom.value = '';
+    if (dateTo)   dateTo.value   = '';
+    renderTable();
+    loadSummary();
+  });
+}
   // Filter buttons
   $$('[data-hfilter]').forEach(btn => {
     btn.addEventListener('click', () => {
