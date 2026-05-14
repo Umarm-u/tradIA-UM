@@ -129,7 +129,7 @@
   <div class="nav-divider"></div>
   <nav class="nav-links">
     <a class="nav-link active" href="/app">Dashboard</a>
-    <a class="nav-link" href="http://localhost:5000/history">Account History</a>
+    <a class="nav-link" href="{{ dashboard_url }}/history">Account History</a>
   </nav>
   <div class="nav-right">
     <a class="nav-user-link" href="/account" title="Account Settings">
@@ -144,7 +144,7 @@
 <div class="iframe-wrap">
   <iframe
     id="dashboard-frame"
-    src="http://localhost:5000"
+    src="{{ dashboard_url }}"
     title="tradIA Dashboard"
   ></iframe>
 </div>

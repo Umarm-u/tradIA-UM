@@ -24,8 +24,9 @@ from cryptography.fernet import Fernet
 load_dotenv()
 
 BASE_DIR     = Path(__file__).parent
-INSTANCE_DIR = BASE_DIR / "instance"
+INSTANCE_DIR   = BASE_DIR / "instance"
 INSTANCE_DIR.mkdir(exist_ok=True)
+DASHBOARD_URL  = os.environ.get("DASHBOARD_URL", "http://localhost:5000")
 
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.environ["AUTH_SECRET_KEY"]
@@ -149,8 +150,9 @@ def logout():
 @login_required
 def app_shell():
     return render_template("app_shell.html",
-        user_name  = session.get("user_name",  ""),
-        user_email = session.get("user_email", ""),
+        user_name     = session.get("user_name",  ""),
+        user_email    = session.get("user_email", ""),
+        dashboard_url = DASHBOARD_URL,
     )
 
 
