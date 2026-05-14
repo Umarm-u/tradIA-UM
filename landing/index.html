@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tradIA | AI-Powered Crypto Trading</title>
+  <meta name="description" content="tradIA runs your BTC/USDT strategy 24/7 on Binance — backtested, live, hands-free." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Exact design tokens from dashboard/css/styles.css ── */
+    :root {
+      --bg-base:      #060b14;
+      --bg-panel:     #0d1421;
+      --bg-card:      #111927;
+      --bg-elevated:  #152033;
+      --bg-hover:     #1a2842;
+      --border:       #1a2742;
+      --border-light: #243450;
+      --border-focus: #2b4a7a;
+      --accent:       #05D06C;
+      --accent-glow:  rgba(24,144,255,0.20);
+      --accent-dim:   rgba(24,144,255,0.12);
+      --green:        #99E39E;
+      --green-dim:    rgba(14,203,129,0.12);
+      --red:          #FF6961;
+      --red-dim:      rgba(246,70,93,0.12);
+      --text-1:       #e2e8f0;
+      --text-2:       #94a3b8;
+      --text-3:       #4a5568;
+      --font-ui:   'Raleway', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 4px;
+      --radius:    8px;
+      --radius-lg: 12px;
+      --shadow:    0 4px 24px rgba(0,0,0,0.5);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.6);
+      --transition: 150ms ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      background: var(--bg-base);
+      color: var(--text-1);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-panel); }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+    /* ── Navbar ── */
+    #navbar {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; gap: 0;
+      height: 52px; padding: 0 32px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .nav-logo { display: flex; align-items: center; flex-shrink: 0; }
+    .nav-logo img { width: 140px; height: auto; display: block; }
+    .nav-right {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px;
+      padding: 8px 20px;
+      font-family: var(--font-ui);
+      font-size: 13px; font-weight: 600;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #40a0ff; box-shadow: 0 4px 16px var(--accent-glow); }
+    .btn-primary:active { transform: scale(.97); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border-light);
+    }
+    .btn-ghost:hover { background: var(--bg-hover); color: var(--text-1); }
+
+    .btn-lg {
+      padding: 13px 32px;
+      font-size: 15px;
+      border-radius: var(--radius);
+    }
+
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 100px 24px 90px;
+  overflow: hidden;
+  background-image: url('/landing/heroimg.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 11, 20, 0.55);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 50%, rgba(14,203,129,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 30% 20%, rgba(24,144,255,0.06) 0%, transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-badge {
+  position: relative;
+  z-index: 1;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 14px;
+  background: var(--green-dim);
+  border: 1px solid rgba(14,203,129,0.25);
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  color: var(--green);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse-green 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+  0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(14,203,129,0.4); }
+  50%      { opacity:.8; box-shadow: 0 0 0 5px transparent; }
+}
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.18;
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+      position: relative; z-index: 1;
+    }
+    .hero h1 .accent { color: var(--accent); }
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--text-2);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      position: relative; z-index: 1;
+    }
+    .hero-ctas {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; flex-wrap: wrap;
+      position: relative; z-index: 1;
+    }
+    .hero-stat-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px;
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat__value {
+      font-family: var(--font-mono);
+      font-size: 26px; font-weight: 600;
+      color: var(--text-1);
+    }
+    .hero-stat__label {
+      font-size: 11px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+
+    /* ── Section wrapper ── */
+    section { padding: 72px 24px; }
+    .section-inner { max-width: 1080px; margin: 0 auto; }
+    .section-tag {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 700; color: var(--text-1);
+      margin-bottom: 12px;
+      letter-spacing: -.01em;
+    }
+    .section-sub {
+      font-size: 15px; color: var(--text-2);
+      max-width: 480px; line-height: 1.7;
+    }
+
+    /* ── How it Works ── */
+    #how { background: var(--bg-panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 48px;
+    }
+    .step-card {
+      background: var(--bg-card);
+      padding: 32px 28px;
+      display: flex; flex-direction: column; gap: 14px;
+      transition: background var(--transition);
+    }
+    .step-card:hover { background: var(--bg-elevated); }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700;
+      color: var(--accent);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .step-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+    .step-title {
+      font-size: 16px; font-weight: 700;
+      color: var(--text-1);
+    }
+    .step-desc {
+      font-size: 13px; color: var(--text-2);
+      line-height: 1.7;
+    }
+
+    /* ── CTA Band ── */
+    #cta-band {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 72px 24px;
+      position: relative; overflow: hidden;
+    }
+    #cta-band::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(24,144,255,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    #cta-band .section-title { position: relative; z-index: 1; }
+    #cta-band .section-sub   { margin: 12px auto 36px; position: relative; z-index: 1; }
+    #cta-band .btn           { position: relative; z-index: 1; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 28px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 12px;
+    }
+    footer .nav-logo img { width: 110px; }
+    .footer-copy {
+      font-size: 12px; color: var(--text-3);
+    }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 420px; max-width: 94vw;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-20px) scale(.97);
+      transition: transform .2s ease;
+      position: relative;
+    }
+    .modal-overlay.open .modal-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all var(--transition);
+    }
+    .modal-close:hover { background: var(--bg-hover); color: var(--text-1); }
+
+    .modal-title {
+      font-size: 20px; font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 4px;
+    }
+    .modal-sub {
+      font-size: 13px; color: var(--text-2);
+      margin-bottom: 24px;
+    }
+
+    /* ── Form elements ── */
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--text-3);
+    }
+    .form-input {
+      padding: 10px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-1);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      width: 100%;
+      transition: border-color var(--transition);
+      outline: none;
+    }
+    .form-input::placeholder { color: var(--text-3); }
+    .form-input:focus { border-color: var(--accent); background: var(--bg-hover); }
+    .form-input.err { border-color: var(--red); }
+
+    .form-error {
+      font-size: 11px; color: var(--red);
+      min-height: 14px;
+    }
+
+    .form-submit {
+      width: 100%;
+      padding: 11px;
+      font-size: 14px; font-weight: 700;
+      background: var(--accent);
+      color: #fff;
+      border: none; border-radius: var(--radius);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      transition: all var(--transition);
+      margin-top: 6px;
+    }
+    .form-submit:hover { background: #40a0ff; box-shadow: 0 4px 16px var(--accent-glow); }
+    .form-submit:active { transform: scale(.98); }
+    .form-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 18px 0;
+      color: var(--text-3); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 10px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      color: var(--text-1);
+      font-family: var(--font-ui);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-google:hover { background: var(--bg-hover); border-color: var(--border-focus); }
+
+    .modal-switch {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px; color: var(--text-2);
+    }
+    .modal-switch a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-switch a:hover { text-decoration: underline; }
+
+    .form-global-error {
+      background: var(--red-dim);
+      border: 1px solid rgba(246,70,93,.3);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-size: 12px; color: var(--red);
+      margin-bottom: 14px;
+      display: none;
+    }
+    .form-global-error.show { display: block; }
+
+    /* ── Toast ── */
+    #toast-wrap {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      font-size: 12px; font-weight: 500;
+      color: var(--text-1);
+      box-shadow: var(--shadow);
+      transform: translateX(120%);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: all;
+      max-width: 320px;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.info    { border-left: 3px solid var(--accent); }
+    .toast.error   { border-left: 3px solid var(--red); }
+    .toast.success { border-left: 3px solid var(--green); }
+
+    @media (max-width: 768px) {
+      #navbar { padding: 0 16px; }
+      .hero { padding: 64px 16px 56px; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .hero-stat-row { gap: 24px; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<header id="navbar">
+  <div class="nav-logo">
+    <img src="/logo2.svg" alt="tradIA" />
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost" onclick="openModal('login')">Sign In</button>
+    <button class="btn btn-primary" onclick="openModal('register')">Get Started</button>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-badge">Live on Binance Testnet</div>
+  <h1>AI-Powered Crypto Trading,<br><span class="accent">Automated.</span></h1>
+  <p class="hero-sub">
+    tradIA runs your strategy 24/7 on Binance — backtested, live, hands-free.
+    Machine-learning signals. Automated execution. Real-time analytics.
+  </p>
+  <div class="hero-ctas">
+    <button class="btn btn-primary btn-lg" onclick="openModal('register')">Get Started</button>
+    <button class="btn btn-ghost btn-lg" onclick="openModal('login')">Sign In</button>
+  </div>
+  
+  </div>
+</section>
+
+<!-- ── How it Works ── -->
+<section id="how">
+  <div class="section-inner">
+    <div class="section-tag">How it works</div>
+    <h2 class="section-title">Three steps to automated trading</h2>
+    <p class="section-sub">
+      tradIA handles everything from signal generation to order execution.
+      You monitor, we trade.
+    </p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">Step 01</div>
+        <div class="step-icon">🔗</div>
+        <div class="step-title">Connect Binance</div>
+        <div class="step-desc">
+          Link your Binance Futures account with a read/write API key.
+          Keys are encrypted with AES-256 — never stored in plaintext.
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">Step 02</div>
+        <div class="step-icon">🤖</div>
+        <div class="step-title">Bot trades automatically</div>
+        <div class="step-desc">
+          The ML signal engine generates BUY/SELL signals every 15 minutes.
+          The execution layer places, manages, and closes positions autonomously.
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">Step 03</div>
+        <div class="step-icon">📊</div>
+        <div class="step-title">Track everything live</div>
+        <div class="step-desc">
+          Full real-time dashboard with equity curve, trade history, PnL analytics,
+          and bot activity logs — always up to date.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA Band ── -->
+<section id="cta-band">
+  <div class="section-inner">
+    <h2 class="section-title">Start trading with tradIA</h2>
+    <p class="section-sub">
+      Join the testnet today. No credit card required.
+    </p>
+    <button class="btn btn-primary btn-lg" onclick="openModal('register')">Get Started</button>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="nav-logo">
+    <img src="/logo2.svg" alt="tradIA" />
+  </div>
+  <span class="footer-copy">© 2026 tradIA. All rights reserved.</span>
+</footer>
+
+<!-- ── Login Modal ── -->
+<div class="modal-overlay" id="modal-login" onclick="backdropClose(event,'login')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('login')" aria-label="Close">✕</button>
+    <div class="modal-title">Welcome back</div>
+    <div class="modal-sub">Sign in to your tradIA account</div>
+
+    <div class="form-global-error" id="login-global-err"></div>
+
+    <form id="login-form" onsubmit="submitLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="login-email">Email</label>
+        <input class="form-input" id="login-email" type="email"
+          placeholder="you@example.com" autocomplete="email" required />
+        <span class="form-error" id="login-email-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input class="form-input" id="login-password" type="password"
+          placeholder="••••••••" autocomplete="current-password" required />
+        <span class="form-error" id="login-password-err"></span>
+      </div>
+      <button type="submit" class="form-submit" id="login-submit">Sign In</button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <button class="btn-google" onclick="window.location='/auth/google'">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 6.294C4.672 4.169 6.656 3.58 9 3.58z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="modal-switch">
+      Don't have an account? <a onclick="switchModal('login','register')">Register</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Register Modal ── -->
+<div class="modal-overlay" id="modal-register" onclick="backdropClose(event,'register')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('register')" aria-label="Close">✕</button>
+    <div class="modal-title">Create your account</div>
+    <div class="modal-sub">Start trading with tradIA today</div>
+
+    <div class="form-global-error" id="register-global-err"></div>
+
+    <form id="register-form" onsubmit="submitRegister(event)">
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Full Name</label>
+        <input class="form-input" id="reg-name" type="text"
+          placeholder="Satoshi Nakamoto" autocomplete="name" required />
+        <span class="form-error" id="reg-name-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email</label>
+        <input class="form-input" id="reg-email" type="email"
+          placeholder="you@example.com" autocomplete="email" required />
+        <span class="form-error" id="reg-email-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password</label>
+        <input class="form-input" id="reg-password" type="password"
+          placeholder="Min. 8 characters" autocomplete="new-password" required />
+        <span class="form-error" id="reg-password-err"></span>
+      </div>
+      <button type="submit" class="form-submit" id="reg-submit">Create Account</button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <button class="btn-google" onclick="window.location='/auth/google'">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 6.294C4.672 4.169 6.656 3.58 9 3.58z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="modal-switch">
+      Already have an account? <a onclick="switchModal('register','login')">Sign In</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast container ── -->
+<div id="toast-wrap"></div>
+
+<script>
+/* ── Modal helpers ── */
+function openModal(id) {
+  clearModalErrors(id);
+  document.getElementById('modal-' + id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function backdropClose(e, id) {
+  if (e.target === e.currentTarget) closeModal(id);
+}
+function switchModal(from, to) {
+  closeModal(from);
+  setTimeout(() => openModal(to), 150);
+}
+
+/* ── Error helpers ── */
+function setFieldError(id, msg) {
+  const el = document.getElementById(id + '-err');
+  const inp = document.getElementById(id);
+  if (el)  el.textContent = msg;
+  if (inp) inp.classList.toggle('err', !!msg);
+}
+function setGlobalError(prefix, msg) {
+  const el = document.getElementById(prefix + '-global-err');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.toggle('show', !!msg);
+}
+function clearModalErrors(id) {
+  const prefix = id === 'login' ? 'login' : 'register';
+  setGlobalError(prefix, '');
+  const fields = id === 'login'
+    ? ['login-email', 'login-password']
+    : ['reg-name', 'reg-email', 'reg-password'];
+  fields.forEach(f => setFieldError(f, ''));
+}
+
+/* ── Toast ── */
+function showToast(msg, type='info', ms=3500) {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 350);
+  }, ms);
+}
+
+/* ── Login submit ── */
+async function submitLogin(e) {
+  e.preventDefault();
+  clearModalErrors('login');
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn      = document.getElementById('login-submit');
+
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      window.location = d.redirect || '/app';
+    } else {
+      setGlobalError('login', d.error || 'Login failed.');
+      btn.disabled = false; btn.textContent = 'Sign In';
+    }
+  } catch {
+    setGlobalError('login', 'Network error — please try again.');
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+}
+
+/* ── Register submit ── */
+async function submitRegister(e) {
+  e.preventDefault();
+  clearModalErrors('register');
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const btn      = document.getElementById('reg-submit');
+
+  if (password.length < 8) {
+    setFieldError('reg-password', 'Password must be at least 8 characters.');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const r = await fetch('/api/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name, email, password }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      window.location = d.redirect || '/app';
+    } else {
+      setGlobalError('register', d.error || 'Registration failed.');
+      btn.disabled = false; btn.textContent = 'Create Account';
+    }
+  } catch {
+    setGlobalError('register', 'Network error — please try again.');
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
+
+/* ── Keyboard: Escape closes modals ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['login','register'].forEach(id => {
+      const el = document.getElementById('modal-' + id);
+      if (el && el.classList.contains('open')) closeModal(id);
+    });
+  }
+});
+
+/* ── Check for auth error cookie (Google OAuth failure) ── */
+(function () {
+  const m = document.cookie.match(/auth_error=([^;]+)/);
+  if (m) {
+    document.cookie = 'auth_error=; max-age=0; path=/';
+    if (m[1] === 'google')
+      showToast('Google OAuth is not configured yet. Please sign in with email and password.', 'error', 5000);
+  }
+})();
+</script>
+</body>
+</html>

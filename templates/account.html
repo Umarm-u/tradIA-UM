@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}tradIA | Account{% endblock %}
+{% block acct_active %}active{% endblock %}
+
+{% block extra_styles %}
+.account-main {
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 0 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.card-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.card-title {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-2);
+}
+.card-body { padding: 24px 20px; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1/-1; }
+.field-label {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--text-3);
+}
+.field-input {
+  padding: 9px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  transition: border-color var(--transition);
+  outline: none;
+  width: 100%;
+}
+.field-input::placeholder { color: var(--text-3); }
+.field-input:focus { border-color: var(--accent); background: var(--bg-hover); }
+.field-input[readonly] {
+  color: var(--text-2);
+  cursor: not-allowed;
+  background: var(--bg-panel);
+}
+
+.save-btn {
+  padding: 9px 22px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .04em;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: all var(--transition);
+}
+.save-btn:hover  { background: #40a0ff; box-shadow: 0 4px 16px var(--accent-glow); }
+.save-btn:active { transform: scale(.97); }
+.save-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.conn-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.conn-icon {
+  width: 38px; height: 38px;
+  border-radius: var(--radius);
+  background: var(--yellow-dim, rgba(240,185,11,0.12));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.conn-info { flex: 1; }
+.conn-name {
+  font-size: 13px; font-weight: 600; color: var(--text-1);
+}
+.conn-type {
+  font-size: 11px; color: var(--text-3); margin-top: 1px;
+}
+.badge-connected {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  background: var(--green-dim);
+  border: 1px solid rgba(14,203,129,.25);
+  border-radius: 20px;
+  font-size: 10px; font-weight: 700;
+  color: var(--green);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.badge-connected::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+}
+
+.enc-note {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 16px;
+  font-size: 11px; color: var(--text-3);
+}
+
+.feedback {
+  font-size: 12px; color: var(--green);
+  min-height: 16px; margin-top: 8px;
+}
+.feedback.err { color: var(--red); }
+
+/* Toast */
+#toast-wrap {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  font-size: 12px; color: var(--text-1);
+  box-shadow: var(--shadow);
+  transform: translateX(120%);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: all; max-width: 300px;
+}
+.toast.show { transform: translateX(0); }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+{% endblock %}
+
+{% block content %}
+<main class="account-main">
+
+  <!-- ── Profile Card ── -->
+  <div class="card">
+    <div class="card-header">
+      <span style="font-size:14px">👤</span>
+      <span class="card-title">Profile</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label" for="p-name">Full Name</label>
+          <input class="field-input" id="p-name" type="text"
+            value="{{ user.name }}" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="p-email">Email</label>
+          <input class="field-input" id="p-email" type="email"
+            value="{{ user.email }}" readonly />
+        </div>
+      </div>
+      <div style="margin-top:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <button class="save-btn" id="profile-save-btn" onclick="saveProfile()">Save</button>
+        <span class="feedback" id="profile-feedback"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Exchange Connections Card ── -->
+  <div class="card">
+    <div class="card-header">
+      <span style="font-size:14px">🔗</span>
+      <span class="card-title">Exchange Connections</span>
+    </div>
+    <div class="card-body">
+
+      <!-- Always-connected row (keys present in .env) -->
+      <div class="conn-row">
+        <div class="conn-icon">₿</div>
+        <div class="conn-info">
+          <div class="conn-name">Binance Futures</div>
+          <div class="conn-type">BTCUSDT · Testnet · Leverage ×5</div>
+        </div>
+        <span class="badge-connected">Connected</span>
+      </div>
+
+      <!-- Update keys form -->
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label" for="k-key">API Key</label>
+          <input class="field-input" id="k-key" type="password"
+            placeholder="••••••••" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="k-secret">API Secret</label>
+          <input class="field-input" id="k-secret" type="password"
+            placeholder="••••••••" autocomplete="off" />
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <button class="save-btn" id="keys-save-btn" onclick="saveKeys()">Update Keys</button>
+        <span class="feedback" id="keys-feedback"></span>
+      </div>
+
+      <div class="enc-note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        Your keys are encrypted with AES-256 before storage
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast-wrap"></div>
+
+<script>
+function showToast(msg, type='success') {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }, 3000);
+}
+
+async function saveProfile() {
+  const name = document.getElementById('p-name').value.trim();
+  const btn  = document.getElementById('profile-save-btn');
+  const fb   = document.getElementById('profile-feedback');
+
+  if (!name) { fb.textContent = 'Name cannot be empty.'; fb.className = 'feedback err'; return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const r = await fetch('/api/account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      fb.textContent = 'Saved'; fb.className = 'feedback';
+      showToast('Profile updated.', 'success');
+    } else {
+      fb.textContent = d.error || 'Error saving.'; fb.className = 'feedback err';
+    }
+  } catch {
+    fb.textContent = 'Network error.'; fb.className = 'feedback err';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+}
+
+async function saveKeys() {
+  const key    = document.getElementById('k-key').value.trim();
+  const secret = document.getElementById('k-secret').value.trim();
+  const btn    = document.getElementById('keys-save-btn');
+  const fb     = document.getElementById('keys-feedback');
+
+  if (!key || !secret) {
+    fb.textContent = 'Both API Key and Secret are required.';
+    fb.className = 'feedback err'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const r = await fetch('/api/account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ binance_api_key: key, binance_secret: secret }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      fb.textContent = 'Keys updated'; fb.className = 'feedback';
+      document.getElementById('k-key').value    = '';
+      document.getElementById('k-secret').value = '';
+      showToast('Binance keys updated and encrypted.', 'success');
+    } else {
+      fb.textContent = d.error || 'Error saving.'; fb.className = 'feedback err';
+    }
+  } catch {
+    fb.textContent = 'Network error.'; fb.className = 'feedback err';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Update Keys';
+  }
+}
+</script>
+{% endblock %}

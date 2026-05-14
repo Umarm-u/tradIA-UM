@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tradIA | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base:      #060b14;
+      --bg-panel:     #0d1421;
+      --bg-card:      #111927;
+      --bg-elevated:  #152033;
+      --bg-hover:     #1a2842;
+      --border:       #1a2742;
+      --border-light: #243450;
+      --accent:       #1890ff;
+      --accent-dim:   rgba(24,144,255,0.12);
+      --text-1:       #e2e8f0;
+      --text-2:       #94a3b8;
+      --text-3:       #4a5568;
+      --font-ui:   'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 4px;
+      --radius:    8px;
+      --transition: 150ms ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      background: var(--bg-base);
+      color: var(--text-1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Single navbar ── */
+    #navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 24px;
+      height: 52px; padding: 0 20px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+    }
+    .nav-logo { display: flex; align-items: center; flex-shrink: 0; }
+    .nav-logo img { width: 140px; height: auto; display: block; }
+    .nav-divider { width: 1px; height: 24px; background: var(--border); }
+
+    .nav-links { display: flex; align-items: center; gap: 2px; }
+    .nav-link {
+      display: inline-flex; align-items: center;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 11px; font-weight: 500;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: background var(--transition), color var(--transition);
+      white-space: nowrap;
+    }
+    .nav-link:hover  { background: var(--bg-card); color: var(--text-1); }
+    .nav-link.active { background: var(--accent-dim); color: var(--accent); }
+
+    .nav-right {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .nav-user-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--accent);
+      flex-shrink: 0;
+    }
+    .nav-user-link {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-2);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      padding: 3px 8px;
+      transition: background var(--transition), color var(--transition);
+    }
+    .nav-user-link:hover { background: var(--bg-hover); color: var(--text-1); }
+
+    .btn-logout {
+      padding: 5px 14px;
+      font-size: 11px; font-weight: 600;
+      background: transparent;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      color: var(--text-2);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      transition: all var(--transition);
+      text-decoration: none;
+      display: inline-flex; align-items: center;
+    }
+    .btn-logout:hover { background: var(--bg-hover); color: var(--text-1); }
+
+    /* ── Iframe: clip the dashboard's own 52px navbar ── */
+    .iframe-wrap {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    #dashboard-frame {
+      position: absolute;
+      top: -52px;
+      left: 0;
+      width: 100%;
+      height: calc(100% + 52px);
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<header id="navbar">
+  <div class="nav-logo">
+    <img src="/logo2.svg" alt="tradIA" />
+  </div>
+  <div class="nav-divider"></div>
+  <nav class="nav-links">
+    <a class="nav-link active" href="/app">Dashboard</a>
+    <a class="nav-link" href="http://localhost:5000/history">Account History</a>
+  </nav>
+  <div class="nav-right">
+    <a class="nav-user-link" href="/account" title="Account Settings">
+      <div class="nav-user-dot">{{ (user_name or 'U')[0].upper() }}</div>
+      <span>{{ user_name }}</span>
+    </a>
+    <div class="nav-divider"></div>
+    <a class="btn-logout" href="/logout">Logout</a>
+  </div>
+</header>
+
+<div class="iframe-wrap">
+  <iframe
+    id="dashboard-frame"
+    src="http://localhost:5000"
+    title="tradIA Dashboard"
+  ></iframe>
+</div>
+
+</body>
+</html>

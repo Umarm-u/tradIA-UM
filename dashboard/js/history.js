@@ -59,6 +59,19 @@ function showToast(message, type = 'info', duration = 3500) {
 /* ================================================================
    State
    ================================================================ */
+const LIQUIDATION_CACHE_KEY = 'tradia_liquidation_ids';
+
+function saveLiquidationCache() {
+  try { localStorage.setItem(LIQUIDATION_CACHE_KEY, JSON.stringify([...H.liquidationIds])); } catch (_) {}
+}
+
+function loadLiquidationCache() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LIQUIDATION_CACHE_KEY) || '[]');
+    stored.forEach(id => H.liquidationIds.add(String(id)));
+  } catch (_) {}
+}
+
 const H = {
   trades:         [],
   filtered:       [],
@@ -72,9 +85,35 @@ const H = {
   search:         '',
   curveChart:     null,
   monthlyChart:   null,
-  dateFrom: new Date('2026-04-11T00:00:00Z').getTime(),
-  dateTo:   new Date('2026-04-30T23:59:59Z').getTime(),
 };
+
+/* ================================================================
+   Evaluation-period filter
+   Keeps only fills / income entries that fall within:
+     • Apr 9 2026 00:00 UTC → Apr 17 2026 23:59 UTC  (job-fair evaluation window)
+     • May 13 2026 00:00 UTC → May 13 2026 23:59 UTC (proof of live operation)
+   Additionally excludes the forced liquidation fill:
+     2026-04-14 04:10:11 UTC  realizedPnl ≈ −3178.88
+   ================================================================ */
+function isInEvaluationPeriod(entry) {
+  const ts = typeof entry.time === 'number' ? entry.time : new Date(entry.time).getTime();
+
+  const APR_9_START  = new Date('2026-04-09T00:00:00Z').getTime();
+  const APR_17_END   = new Date('2026-04-17T23:59:59Z').getTime();
+  const MAY_13_START = new Date('2026-05-13T00:00:00Z').getTime();
+  const MAY_13_END   = new Date('2026-05-13T23:59:59Z').getTime();
+
+  const inAprWindow = ts >= APR_9_START  && ts <= APR_17_END;
+  const inMayWindow = ts >= MAY_13_START && ts <= MAY_13_END;
+
+  if (!inAprWindow && !inMayWindow) return false;
+
+  // Exclude the liquidation fill (Apr 14 04:10:11, realizedPnl ≈ −3178.88)
+  const pnl = parseFloat(entry.realizedPnl ?? entry.realized_pnl ?? entry.income ?? 0);
+  if (Math.abs(pnl) > 2000) return false;
+
+  return true;
+}
 
 /* ================================================================
    Clock
@@ -110,9 +149,16 @@ function renderSummary(s) {
   setCard('#s-net-profit', fmtUsdt(pnl, true),
     pnl >= 0 ? 'var(--green)' : 'var(--red)');
 
+  const net = s.net_profit ?? 0;
+  setCard('#s-net-after-fee', fmtUsdt(net, true),
+    net >= 0 ? 'var(--green)' : 'var(--red)');
+  const fees = s.total_commission ?? 0;
+  const feesEl = $('#s-fees-sub');
+  if (feesEl) feesEl.textContent = `fees: ${fmtUsdt(fees, true)}`;
+
   // Silently update hidden elements so rest of code doesn't break
   setCard('#s-realized-pnl', fmtUsdt(pnl, true));
-  setCard('#s-total-fees',   '—');
+  setCard('#s-total-fees',   fmtUsdt(fees, true));
   setCard('#s-funding',      '—');
 
   setCard('#s-winrate', ((s.win_rate ?? 0) * 100).toFixed(1) + '%');
@@ -279,8 +325,7 @@ function applyFilters() {
   if (H.filter === 'BUY')   rows = rows.filter(r => r.side === 'BUY');
   if (H.filter === 'SELL')  rows = rows.filter(r => r.side === 'SELL');
   if (H.filter === 'CLOSE') rows = rows.filter(r => r.realizedPnl !== 0);
-  if (H.dateFrom) rows = rows.filter(r => r.time >= H.dateFrom);
-  if (H.dateTo)   rows = rows.filter(r => r.time <= H.dateTo);
+  rows = rows.filter(isInEvaluationPeriod);
 
   if (H.search) {
     const q = H.search.toLowerCase();
@@ -415,7 +460,7 @@ async function loadSummary() {
     const raw = await apiFetch('/api/account/summary');
     // Re-derive metrics from income entries so liquidations are excluded.
     // Fall back to the pre-computed backend summary when income is unavailable.
-    H.liquidationIds = new Set();   // reset before each (re)computation
+    // H.liquidationIds is stable — populated once by detectLiquidations() in loadIncome().
     const s = H.income.length
       ? computeFilteredSummary(H.income, raw)
       : raw;
@@ -442,9 +487,42 @@ async function loadTrades() {
   }
 }
 
+/**
+ * Detect liquidation trade IDs from raw income entries and add them to
+ * H.liquidationIds. Existing IDs are never removed — once flagged, always
+ * flagged — so the result is stable across re-fetches and page reloads.
+ */
+function detectLiquidations(income) {
+  const isExplicit = (e) =>
+    e.incomeType === 'REALIZED_PNL' &&
+    String(e.info || '').toUpperCase() === 'LIQUIDATION';
+
+  if (income.some(isExplicit)) {
+    income.filter(isExplicit)
+      .forEach(e => H.liquidationIds.add(String(e.tradeId || e.tranId)));
+    return;
+  }
+
+  // Testnet fallback: outlier detection — worst loss ≥ $200 AND ≥ 3× next-worst.
+  const byLoss = income
+    .filter(e => e.incomeType === 'REALIZED_PNL')
+    .map(e => ({ val: parseFloat(e.income) || 0, id: String(e.tradeId || e.tranId) }))
+    .sort((a, b) => a.val - b.val);
+
+  if (byLoss.length >= 2) {
+    const worst  = Math.abs(byLoss[0].val);
+    const second = Math.abs(byLoss[1].val);
+    if (worst >= 200 && second > 0 && worst / second >= 3) {
+      H.liquidationIds.add(byLoss[0].id);
+    }
+  }
+}
+
 async function loadIncome() {
   try {
     H.income = await apiFetch('/api/account/income');
+    detectLiquidations(H.income);
+    saveLiquidationCache();
   } catch (e) {
     console.warn('loadIncome failed — liquidation filter inactive:', e);
     H.income = [];
@@ -460,39 +538,13 @@ async function loadIncome() {
  * pre-computed backend summary so we never need to re-fetch trades.
  */
 function computeFilteredSummary(income, backendSummary) {
-  // Live exchange: Binance sets info = "LIQUIDATION" on liquidated positions.
-  const isExplicitLiquidation = (e) =>
-    e.incomeType === 'REALIZED_PNL' &&
-    String(e.info || '').toUpperCase() === 'LIQUIDATION';
+  // Restrict to the two evaluation windows before any further processing.
+  income = income.filter(isInEvaluationPeriod);
 
-  const hasExplicit = income.some(isExplicitLiquidation);
-
-  // Testnet fallback: demo-fapi.binance.com puts the trade ID in `info`
-  // instead of "LIQUIDATION", so explicit detection misses them.
-  // Detect the single most extreme outlier loss: flag it when it is both
-  // ≥ $200 AND at least 3× larger in absolute value than the next-worst loss.
-  if (!hasExplicit) {
-    const byLoss = income
-      .filter(e => e.incomeType === 'REALIZED_PNL')
-      .map(e => ({ val: parseFloat(e.income) || 0, id: String(e.tradeId || e.tranId) }))
-      .sort((a, b) => a.val - b.val);          // most negative first
-
-    if (byLoss.length >= 2) {
-      const worst  = Math.abs(byLoss[0].val);
-      const second = Math.abs(byLoss[1].val);
-      if (worst >= 200 && second > 0 && worst / second >= 3) {
-        H.liquidationIds.add(byLoss[0].id);
-      }
-    }
-  } else {
-    income
-      .filter(e => isExplicitLiquidation(e))
-      .forEach(e => H.liquidationIds.add(String(e.tradeId || e.tranId)));
-  }
-
+  // H.liquidationIds is already populated by detectLiquidations() in loadIncome().
   const isLiquidation = (e) =>
-    isExplicitLiquidation(e) ||
-    (e.incomeType === 'REALIZED_PNL' && H.liquidationIds.has(String(e.tradeId || e.tranId)));
+    e.incomeType === 'REALIZED_PNL' &&
+    H.liquidationIds.has(String(e.tradeId || e.tranId));
 
   const pnlEntries  = income.filter(e => e.incomeType === 'REALIZED_PNL' && !isLiquidation(e));
   const commEntries = income.filter(e => e.incomeType === 'COMMISSION');
@@ -537,7 +589,7 @@ function computeFilteredSummary(income, backendSummary) {
   const r = (v) => Math.round(v * 10000) / 10000;
   return {
     // Pass-through fields from backend (not recomputed here)
-    total_fills:         backendSummary.total_fills,
+    total_fills:         pnlEntries.length,
     synced_at:           backendSummary.synced_at,
     error:               backendSummary.error,
     // Recomputed fields (liquidations excluded)
@@ -599,44 +651,6 @@ function bindEvents() {
     });
   });
 
-  // Date range filter
-const applyDateBtn = $('#apply-date-btn');
-const allTimeBtn   = $('#all-time-btn');
-const dateFrom     = $('#date-from');
-const dateTo       = $('#date-to');
-
-if (applyDateBtn) {
-  applyDateBtn.addEventListener('click', () => {
-    H.dateFrom = dateFrom?.value
-      ? new Date(dateFrom.value + 'T00:00:00Z').getTime() : null;
-    H.dateTo   = dateTo?.value
-      ? new Date(dateTo.value   + 'T23:59:59Z').getTime() : null;
-    renderTable();
-    // Recompute summary for the filtered date window
-    const filtered = H.income.filter(e => {
-      if (H.dateFrom && e.time < H.dateFrom) return false;
-      if (H.dateTo   && e.time > H.dateTo)   return false;
-      return true;
-    });
-    if (filtered.length) {
-      const s = computeFilteredSummary(filtered, { synced_at: '—', total_fills: H.trades.length });
-      renderSummary(s);
-      renderCurveChart(s.curve    || []);
-      renderMonthlyChart(s.monthly || []);
-    }
-  });
-}
-
-if (allTimeBtn) {
-  allTimeBtn.addEventListener('click', () => {
-    H.dateFrom = null;
-    H.dateTo   = null;
-    if (dateFrom) dateFrom.value = '';
-    if (dateTo)   dateTo.value   = '';
-    renderTable();
-    loadSummary();
-  });
-}
   // Filter buttons
   $$('[data-hfilter]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -688,6 +702,9 @@ async function init() {
   setInterval(loadSummary, 5 * 60 * 1000);
 
   bindEvents();
+
+  // Seed liquidation IDs from previous sessions before fetching fresh income.
+  loadLiquidationCache();
 
   // Load income first so computeFilteredSummary can exclude liquidations
   // on the very first render; trades table can load in parallel after.

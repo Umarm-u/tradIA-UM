@@ -60,18 +60,6 @@
       </span>
       <button class="sync-btn" id="sync-btn">&#8635; Sync Now</button>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">
-  <span style="font-size:11px;color:var(--text-3)">Date Range:</span>
-  <input type="date" id="date-from" value="2026-03-20"
-    style="background:var(--panel-bg);border:1px solid var(--border);color:var(--text-1);
-           border-radius:4px;padding:3px 6px;font-size:11px" />
-  <span style="font-size:11px;color:var(--text-3)">to</span>
-  <input type="date" id="date-to" value="2026-04-17"
-    style="background:var(--panel-bg);border:1px solid var(--border);color:var(--text-1);
-           border-radius:4px;padding:3px 6px;font-size:11px" />
-  <button id="apply-date-btn" class="sync-btn">Apply</button>
-  <button id="all-time-btn" class="sync-btn" style="background:transparent;border:1px solid var(--border)">All Time</button>
-</div>
   </div>
 
   <!-- Error banner -->
@@ -83,6 +71,11 @@
     <div class="summary-card__label">Net PnL</div>
     <div class="summary-card__value" id="s-net-profit">—</div>
     <div class="summary-card__sub">realized · pre-fee</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-card__label">PnL After Fee</div>
+    <div class="summary-card__value" id="s-net-after-fee">—</div>
+    <div class="summary-card__sub" id="s-fees-sub">fees: —</div>
   </div>
   <div class="summary-card">
     <div class="summary-card__label">Win Rate</div>
